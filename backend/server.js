@@ -4,6 +4,7 @@ const db = require('./db');
 const authRoutes = require('./routes/auth');
 const protectedRoutes = require('./routes/protected');
 const productRoutes = require('./routes/product');
+const cartRoutes = require('./routes/cart');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,6 +16,7 @@ app.use(express.json()); // For parsing JSON requests
 app.use('/api/auth', authRoutes);  // Authentication routes
 app.use('/api', protectedRoutes);  // Apply after other routes that need to be public
 app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Default Route
 app.get('/', (req, res) => {
