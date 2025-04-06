@@ -46,15 +46,32 @@ router.post('/login', (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    res.status(200).json({
-      message: 'Login successful',
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+    const jwt = require('jsonwebtoken');
+
+const token = jwt.sign(
+  {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role
+  },
+  'your_jwt_secret', // Replace with an environment variable in production
+  { expiresIn: '1h' }
+);
+
+res.status(200).json({
+  message: 'Login successful',
+  token,
+  user: {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role
+  }
+});
+
+
+
   });
 });
 
