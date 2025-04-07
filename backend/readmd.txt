@@ -1,0 +1,128 @@
+signup
+    post http://localhost:5000/api/auth/signup
+    {
+        "name": "adityam",
+        "email": "adityam@gmail.com",
+        "password": "123456",
+        "role": "customer"
+    }
+    Content-Type:application/json
+
+Login
+    post http://localhost:5000/api/auth/login
+    {
+        "email": "aditya@gmail.com",
+        "password": "123456"
+    }
+    Content-Type:application/json
+
+profile
+    put http://localhost:5000/api/profile
+    {
+        "name": "Aditya Secure",
+        "password": "superstrongpass"
+    }
+    Authorization:token
+
+product Add
+    a)post http://localhost:5000/api/products/add
+    {
+        "name": "puma",
+        "description": "puma black",
+        "price": 79999,
+        "category": "shoes",
+        "image_url": "https://example.com/image.jpg"
+    }
+    Authorization
+    b)get http://localhost:5000/api/products?search=shoes
+    c)Delete http://localhost:5000/api/products/1
+    Authorization
+    GET /products → all products
+    GET /products?search=shoes → search products with "shoes" in name or category
+    GET /products?sortBy=price&sortOrder=desc → sort by price descending
+    GET /products?page=2&limit=5 → pagination (page 2 with 5 items per page)
+
+Cart 
+    a)Add 
+    post http://localhost:5000/api/cart/add
+    {
+        "product_id": 3,
+        "quantity": 2
+    }
+    Authorization
+    
+    b)get http://localhost:5000/api/cart
+    Authorization
+
+    c)put http://localhost:5000/api/cart/update/2
+    { "quantity":2 }
+    Authorization
+
+    d)Delete http://localhost:5000/api/cart/remove/2
+    Authorization
+
+order
+    a)post http://localhost:5000/api/order/place
+    Authorization
+    b)get http://localhost:5000/api/order/admin
+    Authorization
+    c)Admin:GET http://localhost:5000/api/order/admin
+    Header: Authorization: Bearer <admin-token>
+    d)Customer:GET http://localhost:5000/api/order/my
+    Header: Authorization: Bearer <customer-token>
+    e)Seller:GET http://localhost:5000/api/order/seller
+    Header: Authorization: Bearer <seller-token>
+
+
+sql
+CREATE DATABASE ecommerce_db;
+USE ecommerce_db;
+
+users
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('customer', 'seller', 'admin') NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE products (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  price DECIMAL(10, 2) NOT NULL,
+  category VARCHAR(100),
+  image_url VARCHAR(255),
+  seller_id INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE
+);
+USE ecommerce_db;
+
+CREATE TABLE cart (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  product_id INT NOT NULL,
+  quantity INT DEFAULT 1,
+  added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (product_id) REFERENCES products(id)
+);
+CREATE TABLE orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  total DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+CREATE TABLE order_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT NOT NULL,
+  product_id INT NOT NULL,
+  quantity INT NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  FOREIGN KEY (order_id) REFERENCES orders(id),
+  FOREIGN KEY (product_id) REFERENCES products(id)
+);
