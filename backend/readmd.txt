@@ -136,3 +136,10 @@ CREATE TABLE categories (
   name VARCHAR(100) UNIQUE NOT NULL
 );
 
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=Project
+DB_NAME=ecommerce_db
+DB_PORT=3306
+JWT_SECRET=myjwtsecretkey123
+JWT_EXPIRES_IN=1d
