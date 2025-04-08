@@ -1,5 +1,3 @@
-// backend/routes/product.js
-
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
@@ -40,11 +38,73 @@ router.post('/add', verifyToken, (req, res) => {
   );
 });
 
-// 🌐 Get all products (Public)
+// 🌐 Get products with Search, Sort, Pagination, and Filters
 router.get('/', (req, res) => {
-  db.query('SELECT * FROM products', (err, results) => {
+  const {
+    search,
+    category,
+    minPrice = 0,
+    maxPrice = 999999,
+    sortBy = 'id',
+    sortOrder = 'asc',
+    limit = 10,
+    page = 1
+  } = req.query;
+
+  const validSortFields = ['price', 'name', 'id'];
+  const validSortOrder = ['asc', 'desc'];
+
+  const sortField = validSortFields.includes(sortBy) ? sortBy : 'id';
+  const order = validSortOrder.includes(sortOrder.toLowerCase()) ? sortOrder.toUpperCase() : 'ASC';
+
+  const offset = (parseInt(page) - 1) * parseInt(limit);
+
+  let baseSql = 'SELECT * FROM products';
+  let countSql = 'SELECT COUNT(*) as total FROM products';
+  let conditions = [];
+  let values = [];
+
+  // 🟡 Filtering Conditions
+  if (search) {
+    conditions.push('(name LIKE ? OR category LIKE ?)');
+    values.push(`%${search}%`, `%${search}%`);
+  }
+
+  if (category) {
+    conditions.push('category = ?');
+    values.push(category);
+  }
+
+  conditions.push('price BETWEEN ? AND ?');
+  values.push(minPrice, maxPrice);
+
+  // 🧩 Apply WHERE clause
+  if (conditions.length > 0) {
+    const whereClause = ' WHERE ' + conditions.join(' AND ');
+    baseSql += whereClause;
+    countSql += whereClause;
+  }
+
+  baseSql += ` ORDER BY ${sortField} ${order} LIMIT ? OFFSET ?`;
+  values.push(parseInt(limit), offset);
+
+  // 🔁 First get total count
+  db.query(countSql, values.slice(0, -2), (err, countResult) => {
     if (err) return res.status(500).json({ message: err.message });
-    res.status(200).json(results);
+
+    const total = countResult[0].total;
+
+    // 🧪 Get filtered products
+    db.query(baseSql, values, (err, results) => {
+      if (err) return res.status(500).json({ message: err.message });
+
+      res.status(200).json({
+        total,
+        page: parseInt(page),
+        limit: parseInt(limit),
+        products: results
+      });
+    });
   });
 });
 
