@@ -26,12 +26,24 @@ const LoginPage = () => {
       
       console.log('Success:', response.data);
       const { token } = response.data;
-      localStorage.setItem('token', token);
-      const loginToken = localStorage.getItem('token');
-    console.log('Stored Token:', loginToken);
-    if(loginToken){
-      navigate('/home');
-    }
+      const {user}=response.data;
+      const role=user.role
+      
+      if (token) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("role", role);
+      
+        if (role === "customer") {
+          navigate("/home");
+        } else if (role === "seller") {
+          navigate("/seller");
+        } else if (role === "admin") {
+          navigate("/admin");
+        }
+      }
+        
+
+    
 
     } catch (error) {
       console.error('Error:', error);
