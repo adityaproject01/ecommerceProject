@@ -4,34 +4,32 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db");
 const { verifyToken } = require("../middleware/authMiddleware");
-
+const upload = require("../middleware/upload");
 // ➕ Add category (admin only)
-// Expects: { "name": "Category Name", "image_url": "https://example.com/image_url.jpg" }
-router.post("/add", verifyToken, (req, res) => {
+
+router.post("/add", verifyToken, upload.single("image"), (req, res) => {
   const user = req.user;
-  const { name, image_url } = req.body;
+  const { name } = req.body;
 
   if (user.role !== "admin") {
     return res.status(403).json({ message: "Only admin can add categories" });
   }
 
-  if (!name) {
-    return res.status(400).json({ message: "Category name is required" });
+  if (!name || !req.file) {
+    return res
+      .status(400)
+      .json({ message: "Category name and image are required" });
   }
 
-  const sql = "INSERT INTO categories (name, image_url) VALUES (?, ?)";
-  db.query(sql, [name, image_url || ""], (err, result) => {
-    if (err) {
-      if (err.code === "ER_DUP_ENTRY") {
-        return res.status(400).json({ message: "Category already exists" });
-      }
-      return res.status(500).json({ message: err.message });
-    }
+  const image_url = `/uploads/${req.file.filename}`;
 
-    res.status(201).json({
-      message: "Category added successfully",
-      categoryId: result.insertId,
-    });
+  const sql = `INSERT INTO categories (name, image_url) VALUES (?, ?)`;
+  db.query(sql, [name, image_url], (err, result) => {
+    if (err) return res.status(500).json({ message: err.message });
+
+    res
+      .status(201)
+      .json({ message: "Category created", categoryId: result.insertId });
   });
 });
 
@@ -45,7 +43,6 @@ router.get("/", (req, res) => {
 });
 
 // 🔄 Update category (admin only)
-// Expects JSON body with fields to update, for example: { "name": "New Name", "image_url": "https://example.com/new-image_url.jpg" }
 router.put("/:id", verifyToken, (req, res) => {
   const user = req.user;
   const categoryId = req.params.id;
