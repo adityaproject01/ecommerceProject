@@ -34,6 +34,7 @@ product Add
         "image_url": "https://example.com/image.jpg"
     }
     Authorization
+    g)get http://localhost:5000/api/products/my-products seller
     b)get http://localhost:5000/api/products?search=shoes
     c)Delete http://localhost:5000/api/products/1
     Authorization

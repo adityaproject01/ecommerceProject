@@ -25,14 +25,13 @@ router.post("/add", verifyToken, upload.single("image"), async (req, res) => {
   }
 
   const { name, description } = req.body;
-  const imageFilename = req.file ? req.file.filename : null;
+  const baseUrl = req.protocol + "://" + req.get("host");
+  const imageFilename = req.file
+    ? `${baseUrl}/uploads/products/${req.file.filename}`
+    : null;
   const price = parseFloat(req.body.price);
   const category_id = parseInt(req.body.category_id);
 
-  console.log("BODY:", req.body);
-  console.log("FILE:", req.file);
-
-  // 🛑 Validate required fields
   if (!name || !price || !category_id || !imageFilename) {
     return res.status(400).json({
       message: "Name, Price, Category ID, and Image are required",
@@ -56,6 +55,28 @@ router.post("/add", verifyToken, upload.single("image"), async (req, res) => {
       });
     }
   );
+});
+
+// 🧾 Get products added by the current seller
+router.get("/my-products", verifyToken, (req, res) => {
+  const user = req.user;
+
+  if (user.role !== "seller") {
+    return res
+      .status(403)
+      .json({ message: "Only sellers can view their products" });
+  }
+
+  const sql = `SELECT * FROM products WHERE seller_id = ? ORDER BY id DESC`;
+
+  db.query(sql, [user.id], (err, results) => {
+    if (err) return res.status(500).json({ message: err.message });
+
+    res.status(200).json({
+      sellerId: user.id,
+      products: results,
+    });
+  });
 });
 
 // 🌐 Get products with Search, Sort, Pagination, and Filters
@@ -146,25 +167,63 @@ router.get("/:id", (req, res) => {
 });
 
 // ✏️ Update product (Only the owner or admin should be allowed ideally)
-router.put("/:id", verifyToken, (req, res) => {
+
+router.put("/:id", verifyToken, upload.single("image"), (req, res) => {
   const { id } = req.params;
-  const { name, description, price, category } = req.body;
+  const { name, description } = req.body;
+  const user = req.user;
+  const baseUrl = req.protocol + "://" + req.get("host");
+  const imageFilename = req.file
+    ? `${baseUrl}/uploads/products/${req.file.filename}`
+    : null;
+  const price = parseFloat(req.body.price);
+  const category_id = parseInt(req.body.category_id);
 
-  db.query(
-    "UPDATE products SET name = ?, description = ?, price = ?, category = ? WHERE id = ?",
-    [name, description, price, category, id],
-    (err, result) => {
-      if (err) return res.status(500).json({ message: err.message });
+  // Get the product and check if seller matches
+  db.query("SELECT * FROM products WHERE id = ?", [id], (err, results) => {
+    if (err) return res.status(500).json({ message: err.message });
+    if (results.length === 0)
+      return res.status(404).json({ message: "Product not found" });
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ message: "Product not found" });
-      }
+    const product = results[0];
 
-      res.status(200).json({ message: "Product updated successfully" });
+    if (user.role !== "admin" && user.id !== product.seller_id) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to update this product" });
     }
-  );
-});
 
+    const baseUrl = req.protocol + "://" + req.get("host");
+    const image_url = req.file
+      ? `${baseUrl}/uploads/products/${req.file.filename}`
+      : product.image_url; // keep old image if new one isn't uploaded
+
+    const updateSQL = `
+      UPDATE products
+      SET name = ?, description = ?, price = ?, category_id = ?, image_url = ?
+      WHERE id = ?
+    `;
+
+    db.query(
+      updateSQL,
+      [
+        name,
+        description,
+        parseFloat(price),
+        parseInt(category_id),
+        image_url,
+        id,
+      ],
+      (err, result) => {
+        if (err) return res.status(500).json({ message: err.message });
+
+        return res
+          .status(200)
+          .json({ message: "Product updated successfully" });
+      }
+    );
+  });
+});
 // DELETE product by ID
 router.delete("/:id", verifyToken, (req, res) => {
   const { id } = req.params;

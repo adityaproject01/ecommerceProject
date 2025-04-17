@@ -24,7 +24,8 @@ app.use("/api/order", orderRoutes);
 app.use("/api/address", addressRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/category", categoryRoutes);
-app.use("/uploads", express.static("uploads"));
+app.use("/api/category", categoryRoutes);
+app.use("/uploads/products", express.static("uploads/products"));
 
 // Default Route
 app.get("/", (req, res) => {
