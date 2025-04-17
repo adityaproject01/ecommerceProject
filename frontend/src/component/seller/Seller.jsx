@@ -4,10 +4,14 @@ import "./seller.css";
 import axios from "axios";
 import editImg from "../../images/banner/edit-button_7124470.png";
 import deleteImg from "../../images/banner/delete1.png";
+
 const Seller = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productDetails, setProductDetails] = useState([]);
   const [getCategoryDetails, setGetCategoryDetails] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentEditId, setCurrentEditId] = useState(null);
+
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -15,17 +19,19 @@ const Seller = () => {
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productCategory, setProductCategory] = useState("");
-  const [productImage, setProductImage] = useState("");
+  const [productImage, setProductImage] = useState(null);
   const [productDescription, setProductDescription] = useState("");
 
   // Load products on mount
   useEffect(() => {
     fetchProducts();
-  });
+  }, []);
+
   const logoutButton = () => {
     localStorage.removeItem("token");
     navigate("/home");
   };
+
   const fetchProducts = () => {
     axios
       .get("http://localhost:5000/api/products/my-products", {
@@ -39,32 +45,30 @@ const Seller = () => {
       .catch((error) => {
         console.log("Fetch error", error);
       });
+
     axios.get("http://localhost:5000/api/category").then((respone) => {
       setGetCategoryDetails(respone.data);
     });
   };
 
-  // Delete a product
   const productDelete = (productId) => {
-    const deleteProductUrl = `http://localhost:5000/api/products/${productId}`;
-
     axios
-      .delete(deleteProductUrl, {
+      .delete(`http://localhost:5000/api/products/${productId}`, {
         headers: {
           Authorization: token,
         },
       })
       .then((response) => {
         console.log("Deleted", response.data);
-        fetchProducts(); // Refresh the list after deletion
+        fetchProducts();
       })
       .catch((error) => {
         console.log("DeleteError", error);
       });
   };
 
-  // Add a product
   const handleAddProduct = async (e) => {
+
     e.preventDefault();
 
     const formData = new FormData();
@@ -73,6 +77,7 @@ const Seller = () => {
     formData.append("category_id", productCategory);
     formData.append("description", productDescription);
     formData.append("image", productImage);
+
     try {
       const response = await axios.post(
         "http://localhost:5000/api/products/add",
@@ -86,16 +91,55 @@ const Seller = () => {
       );
 
       console.log("Product added", response.data);
-      fetchProducts(); // Refresh product list
-      setIsModalOpen(false); // Close modal
-      setProductName("");
-      setProductPrice("");
-      setProductCategory("");
-      setProductImage("");
-      setProductDescription("");
+      fetchProducts();
+      closeModal();
     } catch (error) {
       console.error("Error adding product:", error);
     }
+  };
+
+  const handlEditProduct = async (e,productId) => {
+    e.preventDefault();
+
+    console.log(productId)
+    console.log("object")
+    const formData = new FormData();
+    formData.append("name", productName);
+    formData.append("price", productPrice);
+    formData.append("category_id", productCategory);
+    formData.append("description", productDescription);
+    if (productImage) formData.append("image", productImage);
+    const prodEdit=`http://localhost:5000/api/products/${productId}`
+    try {
+      const response = await axios.put(
+        prodEdit,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: token,
+          },
+        }
+      );
+      alert("Product updated");
+      console.log(response.data);
+      fetchProducts();
+      closeModal();
+    } catch (error) {
+      console.log("errorEdit", error);
+    }
+    console.log(formData)
+    console.log(prodEdit)
+  };
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setIsEditing(false);
+    setCurrentEditId(null);
+    setProductName("");
+    setProductPrice("");
+    setProductCategory("");
+    setProductImage(null);
+    setProductDescription("");
   };
 
   return (
@@ -103,7 +147,7 @@ const Seller = () => {
       <div className="sellerNav">
         <button onClick={() => navigate("/seller/product")}>Product</button>
         <button onClick={() => setIsModalOpen(true)}>Add Product</button>
-        <button onClick={() => logoutButton()}>Logout</button>
+        <button onClick={logoutButton}>Logout</button>
       </div>
 
       <div className="sellerBody">
@@ -114,11 +158,19 @@ const Seller = () => {
             <div className="overlay">
               <div className="modal drop1">
                 <div className="modalNav">
-                  <h2>Add Product</h2>
-                  <button onClick={() => setIsModalOpen(false)}>Close</button>
+                  <h2>{isEditing ? "Edit Product" : "Add Product"}</h2>
+                  <button onClick={closeModal}>Close</button>
                 </div>
                 <div className="productForm">
-                  <form onSubmit={handleAddProduct}>
+                  <form
+                     onSubmit={async (e) => {
+                      if (isEditing) {
+                        await handlEditProduct(e,currentEditId);
+                      } else {
+                        await handleAddProduct(e);
+                      }
+                    }}
+                  >
                     <div className="productFiled">
                       <label>Name</label>
                       <input
@@ -152,7 +204,7 @@ const Seller = () => {
                     </div>
 
                     <div className="productFiled">
-                      <label>Image URL</label>
+                      <label>Image</label>
                       <input
                         type="file"
                         onChange={(e) => setProductImage(e.target.files[0])}
@@ -166,7 +218,9 @@ const Seller = () => {
                       />
                     </div>
                     <div className="productFiled">
-                      <button type="submit">Submit</button>
+                      <button type="submit">
+                        {isEditing ? "Update" : "Submit"}
+                      </button>
                     </div>
                   </form>
                 </div>
@@ -174,7 +228,6 @@ const Seller = () => {
             </div>
           )}
 
-          {/* Product Table */}
           <div className="sellerGlassCard">
             <div className="product">
               <div className="productDetails">SlNo</div>
@@ -191,15 +244,31 @@ const Seller = () => {
                 <p className="productDetails">{index + 1}</p>
                 <p className="productDetails">{product.name}</p>
                 <p className="productDetails">{product.price}</p>
-                {console.log(product)}
                 <p className="productDetails">{product.category_id}</p>
-                <p className="productDetails">{console.log(`http://localhost:5000/uploads/products/${product.image_url}`)}
-                  <img src={product.image_url} alt="" height="50" />
+                <p className="productDetails">
+                  <img
+                    src={product.image_url}
+                    alt="product"
+                    height="50"
+                  />
                 </p>
                 <p className="productDetails">{product.description}</p>
                 <p className="productDetails">
                   <button className="button">
-                    <img src={editImg} alt="Edit" />
+                    <img
+                      src={editImg}
+                      alt="Edit"
+                      onClick={() => {
+                        setIsModalOpen(true);
+                        setIsEditing(true);
+                        setCurrentEditId(product.id);
+                        setProductName(product.name);
+                        setProductPrice(product.price);
+                        setProductCategory(product.category_id);
+                        setProductDescription(product.description);
+                        setProductImage(null); // can't preload a file input
+                      }}
+                    />
                   </button>
                   <button
                     className="button"
