@@ -1,34 +1,52 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
+const multer = require("multer");
 const { verifyToken } = require("../middleware/authMiddleware");
 
+// ➕ Setup Multer Storage for image upload
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/products/"); // Save images to 'uploads/products/' folder
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname); // Save file with unique name
+  },
+});
+
+const upload = multer({ storage: storage });
+
 // 🔒 Add a product — Only sellers allowed
-router.post("/add", verifyToken, (req, res) => {
+router.post("/add", verifyToken, upload.single("image"), async (req, res) => {
   const user = req.user;
 
-  // 🔐 Check role
   if (user.role !== "seller") {
     return res.status(403).json({ message: "Only sellers can add products" });
   }
 
-  const { name, description, price, category, image_url } = req.body;
+  const { name, description } = req.body;
+  const imageFilename = req.file ? req.file.filename : null;
+  const price = parseFloat(req.body.price);
+  const category_id = parseInt(req.body.category_id);
 
-  // ✅ Validate input
-  if (!name || !price || !category) {
-    return res
-      .status(400)
-      .json({ message: "Name, Price, and Category are required" });
+  console.log("BODY:", req.body);
+  console.log("FILE:", req.file);
+
+  // 🛑 Validate required fields
+  if (!name || !price || !category_id || !imageFilename) {
+    return res.status(400).json({
+      message: "Name, Price, Category ID, and Image are required",
+    });
   }
 
   const sql = `
-    INSERT INTO products (name, description, price, category, image_url, seller_id)
+    INSERT INTO products (name, description, price, category_id, image_url, seller_id)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     sql,
-    [name, description || "", price, category, image_url || "", user.id],
+    [name, description || "", price, category_id, imageFilename, user.id],
     (err, result) => {
       if (err) return res.status(500).json({ message: err.message });
 
@@ -58,7 +76,7 @@ router.get("/", (req, res) => {
 
   const sortField = validSortFields.includes(sortBy) ? sortBy : "id";
   const order = validSortOrder.includes(sortOrder.toLowerCase())
-    ? sortOrder.toUpperCase()
+    ? sortOrder
     : "ASC";
 
   const offset = (parseInt(page) - 1) * parseInt(limit);

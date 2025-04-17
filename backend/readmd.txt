@@ -72,6 +72,12 @@ order
     Header: Authorization: Bearer <customer-token>
     e)Seller:GET http://localhost:5000/api/order/seller
     Header: Authorization: Bearer <seller-token>
+category
+  get http://localhost:5000/api/category
+  empty
+  POST http://localhost:5000/api/category/add
+  Authorization: Bearer <your_admin_jwt_token>
+  Content-Type: application/json
 
 
 sql
@@ -143,3 +149,12 @@ DB_NAME=ecommerce_db
 DB_PORT=3306
 JWT_SECRET=myjwtsecretkey123
 JWT_EXPIRES_IN=1d
+
+cat and product delete auto
+ALTER TABLE cart
+DROP FOREIGN KEY cart_ibfk_2;
+
+ALTER TABLE cart
+ADD CONSTRAINT cart_ibfk_2
+FOREIGN KEY (product_id) REFERENCES products(id)
+ON DELETE CASCADE;
