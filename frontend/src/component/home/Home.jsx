@@ -1,14 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./home.css";
-import banner1 from "../../images/banner/shoppbanner.png";
-import beauty from "../../images/banner/beauty.png";
-import cloths from "../../images/banner/Clothing.png";
-import Furniture from "../../images/banner/Furniture1.png";
-import stationery from "../../images/banner/Stationery (1).png";
-import toys from "../../images/banner/toys.png";
-
 import AutoSlider from "./AutoSlider";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 const Home = () => {
+  const [products, setProducts] = useState([]);
+  const [category, setCategory] = useState([]);
+  // const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
+  const logoutButton = () => {
+    localStorage.removeItem("token");
+    navigate("/");
+  };
+  useEffect(() => {
+
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/products/");
+        setProducts(response.data.products); // assuming response.data is your product list
+        console.log("Products fetched:", response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    const fetchCategory=async()=>{
+      try {
+        const response=await axios.get("http://localhost:5000/api/category")
+        setCategory(response.data)
+        console.log(response.data,"ddddd")
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    
+fetchCategory()
+    fetchProducts();
+  }, []); 
+
   return (
     <div className="home">
       <div className="homeBody"></div>
@@ -17,6 +47,8 @@ const Home = () => {
           <div className="homeHeadder">
             <p className="bannerTitle1">Welcome to online shopping</p>
           </div>
+        <button onClick={logoutButton}>Logout</button>
+
         </div>
         <div className="homeBanner">
           <div className="banner1">
@@ -25,26 +57,24 @@ const Home = () => {
         </div>
         <div className="category">
           <div className="subCategory">
-            <div className="categoryCard">
-              <img src={beauty} className="categoryImage" />
-              <p className="categoryDetails">Beauty</p>
-            </div>
-            <div className="categoryCard">
-              <img src={cloths} className="categoryImage" />
-              <p className="categoryDetails">Cloths</p>
-            </div>
-            <div className="categoryCard">
-              <img src={Furniture} className="categoryImage" />
-              <p className="categoryDetails">Furniture</p>
-            </div>
-            <div className="categoryCard">
-              <img src={toys} className="categoryImage" />
-              <p className="categoryDetails">Toys</p>
-            </div>
-            <div className="categoryCard">
-              <img src={stationery} className="categoryImage" />
-              <p className="categoryDetails">stationery</p>
-            </div>
+          {category.map((item, index) => (
+             <div key={index} className="categoryCard">
+             <img src={item.image_url} alt="" className="categoryImage" />
+             <p className="categoryDetails">{item.name}</p>
+           </div>
+            ))}
+           
+          </div>
+        </div>
+        <div className="products">
+          <div className="subProducts">
+          {products.map((item, index) => (
+             <div key={index} className="productCard">
+             <img src={item.image_url} alt=""className="productImage" />
+             <p className="categoryDetails">{item.name}</p>
+           </div>
+            ))}
+           
           </div>
         </div>
       </div>

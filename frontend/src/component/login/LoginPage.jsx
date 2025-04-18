@@ -88,7 +88,7 @@ const LoginPage = () => {
             </div>
             <div className="loginRightsub">
               <button className="loginButton">Login</button>
-              <p>Signup</p>
+              <button onClick={()=>{navigate("/register")}} >SignUp</button>
               <p>ForgotPassword</p>
             </div>
             </form>

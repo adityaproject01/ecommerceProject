@@ -159,3 +159,135 @@ ALTER TABLE cart
 ADD CONSTRAINT cart_ibfk_2
 FOREIGN KEY (product_id) REFERENCES products(id)
 ON DELETE CASCADE;
+
+CREATE TABLE subcategories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  category_id INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  image_url VARCHAR(255),
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+
+
+
+CREATE DATABASE ecommerce_db;
+USE ecommerce_db;
+
+address Table:
+CREATE TABLE address (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    full_name VARCHAR(255),
+    phone VARCHAR(15),
+    address_line1 TEXT NOT NULL,
+    address_line2 TEXT,
+    city VARCHAR(100),
+    state VARCHAR(100),
+    postal_code VARCHAR(10),
+    country VARCHAR(100)
+);
+addresses Table:
+
+
+
+CREATE TABLE addresses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    address_line TEXT NOT NULL,
+    city VARCHAR(100),
+    state VARCHAR(100),
+    pincode VARCHAR(10)
+);
+cart Table:
+
+
+
+CREATE TABLE cart (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT DEFAULT 1,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+categories Table:
+
+
+
+CREATE TABLE categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    image_url VARCHAR(255)
+);
+order_items Table:
+
+
+
+CREATE TABLE order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL
+);
+orders Table:
+
+
+
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    address_id INT,
+    total DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    payment_mode VARCHAR(20) DEFAULT 'COD',
+    status VARCHAR(50) DEFAULT 'pending'
+);
+products Table:
+
+
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    category_id INT,
+    image_url VARCHAR(255),
+    seller_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+subcategories Table:
+
+
+
+CREATE TABLE subcategories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    category_id INT NOT NULL,
+    image_url VARCHAR(255)
+);
+users Table:
+
+
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('customer', 'seller', 'admin') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+ALTER TABLE addresses ADD CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE cart ADD CONSTRAINT fk_cart_user_id FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE cart ADD CONSTRAINT fk_cart_product_id FOREIGN KEY (product_id) REFERENCES products(id);
+ALTER TABLE order_items ADD CONSTRAINT fk_order_items_order_id FOREIGN KEY (order_id) REFERENCES orders(id);
+ALTER TABLE order_items ADD CONSTRAINT fk_order_items_product_id FOREIGN KEY (product_id) REFERENCES products(id);
+ALTER TABLE orders ADD CONSTRAINT fk_orders_user_id FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE orders ADD CONSTRAINT fk_orders_address_id FOREIGN KEY (address_id) REFERENCES address(id);
+ALTER TABLE products ADD CONSTRAINT fk_products_category_id FOREIGN KEY (category_id) REFERENCES categories(id);
+ALTER TABLE products ADD CONSTRAINT fk_products_seller_id FOREIGN KEY (seller_id) REFERENCES users(id);
+ALTER TABLE subcategories ADD CONSTRAINT fk_subcategories_category_id FOREIGN KEY (category_id) REFERENCES categories(id);

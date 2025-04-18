@@ -32,7 +32,6 @@ router.post("/add", verifyToken, upload.single("image"), (req, res) => {
       .json({ message: "Category created", categoryId: result.insertId });
   });
 });
-
 // 🌐 Get all categories
 router.get("/", (req, res) => {
   const sql = "SELECT * FROM categories";

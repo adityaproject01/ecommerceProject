@@ -142,3 +142,33 @@
   color: white;
   font-size: 40px;
 }
+.products{
+  display: flex;
+  flex-wrap: wrap;
+  width: 90%;
+  height: 100%;
+  border-radius: 40px;
+  box-shadow: inset 0 0 10px white;
+}
+.subProducts{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-items: center;
+}
+.productCard{
+  width: 20%;
+  height: 90%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex-direction: row;
+  flex-direction: column;
+  align-items: center;
+}
+.productImage{
+  width: 80%;
+  height: auto;
+  filter: drop-shadow(0 0 5px white);
+}

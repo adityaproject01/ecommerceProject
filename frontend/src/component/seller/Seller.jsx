@@ -15,7 +15,6 @@ const Seller = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  // Form input state
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productCategory, setProductCategory] = useState("");
