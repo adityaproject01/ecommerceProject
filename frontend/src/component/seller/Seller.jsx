@@ -9,6 +9,7 @@ const Seller = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productDetails, setProductDetails] = useState([]);
   const [getCategoryDetails, setGetCategoryDetails] = useState([]);
+  const [getSubCategoryDetails, setGetSubCategoryDetails] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState(null);
 
@@ -18,13 +19,22 @@ const Seller = () => {
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productCategory, setProductCategory] = useState("");
+  const [productSubCategory, setProductSubCategory] = useState("");
   const [productImage, setProductImage] = useState(null);
   const [productDescription, setProductDescription] = useState("");
 
-  // Load products on mount
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (productCategory) {
+      fetchSubCategories(productCategory);
+    } else {
+      setGetSubCategoryDetails([]);
+    }
+  }, [productCategory]);
 
   const logoutButton = () => {
     localStorage.removeItem("token");
@@ -44,10 +54,30 @@ const Seller = () => {
       .catch((error) => {
         console.log("Fetch error", error);
       });
+  };
 
-    axios.get("http://localhost:5000/api/category").then((respone) => {
-      setGetCategoryDetails(respone.data);
-    });
+  const fetchCategories = () => {
+    axios
+      .get("http://localhost:5000/api/category")
+      .then((response) => {
+        setGetCategoryDetails(response.data);
+      })
+      .catch((error) => {
+        console.log("Fetch category error", error);
+      });
+  };
+
+  const fetchSubCategories = (categoryId) => {
+    axios
+      .get(`http://localhost:5000/api/subcategory/category/${categoryId}`)
+      .then((res) => {
+        setGetSubCategoryDetails(res.data);
+        console.log(res.data,"S")
+      })
+      .catch((err) => {
+        console.error("Failed to fetch subcategories", err);
+        setGetSubCategoryDetails([]);
+      });
   };
 
   const productDelete = (productId) => {
@@ -67,7 +97,6 @@ const Seller = () => {
   };
 
   const handleAddProduct = async (e) => {
-
     e.preventDefault();
 
     const formData = new FormData();
@@ -76,6 +105,7 @@ const Seller = () => {
     formData.append("category_id", productCategory);
     formData.append("description", productDescription);
     formData.append("image", productImage);
+    formData.append("subcategory_id", productSubCategory);
 
     try {
       const response = await axios.post(
@@ -97,21 +127,19 @@ const Seller = () => {
     }
   };
 
-  const handlEditProduct = async (e,productId) => {
+  const handlEditProduct = async (e, productId) => {
     e.preventDefault();
 
-    console.log(productId)
-    console.log("object")
     const formData = new FormData();
     formData.append("name", productName);
     formData.append("price", productPrice);
     formData.append("category_id", productCategory);
     formData.append("description", productDescription);
     if (productImage) formData.append("image", productImage);
-    const prodEdit=`http://localhost:5000/api/products/${productId}`
+
     try {
       const response = await axios.put(
-        prodEdit,
+        `http://localhost:5000/api/products/${productId}`,
         formData,
         {
           headers: {
@@ -121,15 +149,13 @@ const Seller = () => {
         }
       );
       alert("Product updated");
-      console.log(response.data);
       fetchProducts();
       closeModal();
     } catch (error) {
       console.log("errorEdit", error);
     }
-    console.log(formData)
-    console.log(prodEdit)
   };
+
   const closeModal = () => {
     setIsModalOpen(false);
     setIsEditing(false);
@@ -137,6 +163,7 @@ const Seller = () => {
     setProductName("");
     setProductPrice("");
     setProductCategory("");
+    setProductSubCategory("");
     setProductImage(null);
     setProductDescription("");
   };
@@ -162,9 +189,9 @@ const Seller = () => {
                 </div>
                 <div className="productForm">
                   <form
-                     onSubmit={async (e) => {
+                    onSubmit={async (e) => {
                       if (isEditing) {
-                        await handlEditProduct(e,currentEditId);
+                        await handlEditProduct(e, currentEditId);
                       } else {
                         await handleAddProduct(e);
                       }
@@ -191,12 +218,27 @@ const Seller = () => {
                         value={productCategory}
                         onChange={(e) => setProductCategory(e.target.value)}
                       >
-                        <option value="" disabled>
-                          Select Value
-                        </option>
-                        {getCategoryDetails?.map((value) => (
-                          <option key={value.id} value={value.id}>
-                            {value.name}
+                        <option value="">Select Category</option>
+                        {getCategoryDetails.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="productFiled">
+                      <label>SubCategory</label>
+                      <select
+                        value={productSubCategory}
+                        onChange={(e) => setProductSubCategory(e.target.value)}
+                      >
+                        <option value="">Select Subcategory</option>
+                        {getSubCategoryDetails.map((sub) => (
+                          <option
+                            key={sub.subcategory_id}
+                            value={sub.subcategory_id}
+                          >
+                            {sub.subcategory_name}
                           </option>
                         ))}
                       </select>
@@ -245,11 +287,7 @@ const Seller = () => {
                 <p className="productDetails">{product.price}</p>
                 <p className="productDetails">{product.category_id}</p>
                 <p className="productDetails">
-                  <img
-                    src={product.image_url}
-                    alt="product"
-                    height="50"
-                  />
+                  <img src={product.image_url} alt="product" height="50" />
                 </p>
                 <p className="productDetails">{product.description}</p>
                 <p className="productDetails">
@@ -264,8 +302,9 @@ const Seller = () => {
                         setProductName(product.name);
                         setProductPrice(product.price);
                         setProductCategory(product.category_id);
+                        setProductSubCategory(product.subcategory_id);
                         setProductDescription(product.description);
-                        setProductImage(null); // can't preload a file input
+                        setProductImage(null);
                       }}
                     />
                   </button>

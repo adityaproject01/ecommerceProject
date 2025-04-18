@@ -25,9 +25,8 @@ app.use("/api/order", orderRoutes);
 app.use("/api/address", addressRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/category", categoryRoutes);
-app.use("/api/category", categoryRoutes);
+app.use("/api/subcategory", subcategoryRoutes);
 app.use("/uploads/products", express.static("uploads/products"));
-app.use("/subcategories", subcategoryRoutes);
 // Default Route
 app.get("/", (req, res) => {
   res.send("E-Commerce API is running...");
