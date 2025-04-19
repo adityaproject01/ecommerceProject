@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import "./adminSubcategory.css";
 import axios from "axios";
@@ -9,6 +9,18 @@ const AdminSubCategory = () => {
   const [categoryMain, setCategoryMain] = useState("");
   const [images, setImages] = useState("");
   const token = localStorage.getItem("token");
+    const [getCategoryDetails, setGetCategoryDetails] = useState([]);
+  
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/category")
+      .then((response) => {
+        setGetCategoryDetails(response.data);
+      })
+      .catch((error) => {
+        console.log("Fetch category error", error);
+      });
+    }, []);
   const handleSubCatDetails = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -71,14 +83,19 @@ const AdminSubCategory = () => {
                   />
                 </div>
                 <div className="adminsubcatModalBodyInput">
-                  <label>Category</label>
-                  <select
-                    value={categoryMain}
-                    onChange={(e) => setCategoryMain(e.target.value)}
-                  >
-                    <option value="">Select a category</option>
-                    <option value="2">Category 2</option>
-                  </select>
+                
+                      <label>Category</label>
+                      <select
+                        onChange={(e) => setCategoryMain(e.target.value)}
+                      >
+                        <option selected disabled>Select Category</option>
+                        {getCategoryDetails.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
+                        ))}
+                      </select>
+                  
                 </div>
 
                 <div className="adminsubcatModalBodyInput">

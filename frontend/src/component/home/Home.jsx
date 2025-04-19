@@ -19,7 +19,7 @@ const Home = () => {
     const fetchProducts = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/products/");
-        setProducts(response.data.products); // assuming response.data is your product list
+        setProducts(response.data.products); 
         console.log("Products fetched:", response.data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -60,6 +60,7 @@ fetchCategory()
           {category.map((item, index) => (
              <div key={index} className="categoryCard">
              <img src={item.image_url} alt="" className="categoryImage" />
+             {console.log(item.image_url)}
              <p className="categoryDetails">{item.name}</p>
            </div>
             ))}
@@ -70,7 +71,7 @@ fetchCategory()
           <div className="subProducts">
           {products.map((item, index) => (
              <div key={index} className="productCard">
-             <img src={item.image_url} alt=""className="productImage" />
+             <img src={`http://localhost:5000/${item.image_url}`} alt=""className="productImage" />
              <p className="categoryDetails">{item.name}</p>
            </div>
             ))}
