@@ -115,8 +115,20 @@
   border-radius: 40px;
   box-shadow: inset 0 0 10px white;
 }
+:root {
+  --scrollbar-width-height: 5px; 
+  --scrollbar-width-height: 5px; 
+}
+.subCategory::-webkit-scrollbar {
+  background: #fff;
+  width: var(--scrollbar-width-height);
+  height: var(--scrollbar-width-height);
+}
+
 
 .subCategory {
+  overflow-x:scroll ;
+
   width: 100%;
   height: 100%;
   display: flex;
@@ -134,7 +146,7 @@
   align-items: center;
 }
 .categoryImage {
-  width: 80%;
+  width: 70%;
   height: auto;
   filter: drop-shadow(0 0 5px white);
 }

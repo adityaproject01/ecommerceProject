@@ -14,6 +14,7 @@ import {
 } from "react-router-dom";
 import AdminCategory from "./component/admin/adminCategory/AdminCategory";
 import AdminSubCategory from "./component/admin/adminSubCategory/AdminSubCategory";
+import AdminSubSubCategory from "./component/admin/adminSubSubCategory/AdminSubSubCategory";
 
 function App() {
   return (
@@ -66,6 +67,15 @@ function App() {
           element={
             <ProtectedRoute
               element={<AdminSubCategory />}
+              allowedRoles={["admin"]}
+            />
+          }
+        />
+        <Route
+          path="/admin/adminsubsubcategory"
+          element={
+            <ProtectedRoute
+              element={<AdminSubSubCategory />}
               allowedRoles={["admin"]}
             />
           }

@@ -20,13 +20,13 @@ router.post("/add", verifyToken, upload.single("image"), (req, res) => {
       .status(400)
       .json({ message: "Category name and image are required" });
   }
-
-  const image_url = `/uploads/${req.file.filename}`;
-
+  const baseUrl = req.protocol + "://" + req.get("host");
+  const image_url = req.file ? `${baseUrl}/uploads/${req.file.filename}` : null;
+  // const image_url = `/uploads/${req.file.filename}`;
+  console.log(image_url, "dsdsd");
   const sql = `INSERT INTO categories (name, image_url) VALUES (?, ?)`;
   db.query(sql, [name, image_url], (err, result) => {
     if (err) return res.status(500).json({ message: err.message });
-
     res
       .status(201)
       .json({ message: "Category created", categoryId: result.insertId });

@@ -27,10 +27,10 @@ const AdminSubCategory = () => {
     formData.append("name", name);
     formData.append("category_id", categoryMain);
     formData.append("image", images);
-   
+    
     try {
       const response = await axios.post(
-        "http://localhost:5000/subcategories/add",
+        "http://localhost:5000/api/subcategory/add",
         formData,
         {
           headers: {
@@ -43,7 +43,7 @@ const AdminSubCategory = () => {
       console.log(response.data)
       closeModal()
     } catch (error) {
-      console.log(error, "error");
+      console.log("error",error);
     }
   };
   const closeModal = () => {

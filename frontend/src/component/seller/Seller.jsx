@@ -26,7 +26,7 @@ const Seller = () => {
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-  }, []);
+  });
 
   useEffect(() => {
     if (productCategory) {
@@ -148,6 +148,7 @@ const Seller = () => {
           },
         }
       );
+      console.log(response.data)
       alert("Product updated");
       fetchProducts();
       closeModal();

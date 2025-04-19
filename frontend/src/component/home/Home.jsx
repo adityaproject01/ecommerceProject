@@ -15,29 +15,28 @@ const Home = () => {
     navigate("/");
   };
   useEffect(() => {
-
     const fetchProducts = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/products/");
-        setProducts(response.data.products); 
+        setProducts(response.data.products);
         console.log("Products fetched:", response.data);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
     };
-    const fetchCategory=async()=>{
+    const fetchCategory = async () => {
       try {
-        const response=await axios.get("http://localhost:5000/api/category")
-        setCategory(response.data)
-        console.log(response.data,"ddddd")
+        const response = await axios.get("http://localhost:5000/api/category");
+        setCategory(response.data);
+        console.log(response.data, "ddddd");
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
-    
-fetchCategory()
+    };
+
+    fetchCategory();
     fetchProducts();
-  }, []); 
+  }, []);
 
   return (
     <div className="home">
@@ -47,8 +46,7 @@ fetchCategory()
           <div className="homeHeadder">
             <p className="bannerTitle1">Welcome to online shopping</p>
           </div>
-        <button onClick={logoutButton}>Logout</button>
-
+          <button onClick={logoutButton}>Logout</button>
         </div>
         <div className="homeBanner">
           <div className="banner1">
@@ -57,25 +55,33 @@ fetchCategory()
         </div>
         <div className="category">
           <div className="subCategory">
-          {category.map((item, index) => (
-             <div key={index} className="categoryCard">
-             <img src={item.image_url} alt="" className="categoryImage" />
-             {console.log(item.image_url)}
-             <p className="categoryDetails">{item.name}</p>
-           </div>
+            {category.map((item, index) => (
+              <div key={index} className="categoryCard">
+                {console.log(item.image_url)}
+                <img
+                  src={`http://localhost:5000${item.image_url}`}
+                  alt=""
+                  className="categoryImage"
+                />
+
+                <p className="categoryDetails">{item.name}</p>
+              </div>
             ))}
-           
           </div>
         </div>
         <div className="products">
           <div className="subProducts">
-          {products.map((item, index) => (
-             <div key={index} className="productCard">
-             <img src={`http://localhost:5000/${item.image_url}`} alt=""className="productImage" />
-             <p className="categoryDetails">{item.name}</p>
-           </div>
+            {products.map((item, index) => (
+              <div key={index} className="productCard">
+                <img
+                  src={`http://localhost:5000/${item.image_url}`}
+                  alt=""
+                  className="productImage"
+                />
+
+                <p className="categoryDetails">{item.name}</p>
+              </div>
             ))}
-           
           </div>
         </div>
       </div>

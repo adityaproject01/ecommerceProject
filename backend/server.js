@@ -12,6 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const categoryRoutes = require("./routes/category");
 const subcategoryRoutes = require("./routes/subcategory");
+const subSubcategoryRoutes = require("./routes/subsubcategories");
 
 app.use(cors());
 app.use(express.json()); // For parsing JSON requests
@@ -26,7 +27,8 @@ app.use("/api/address", addressRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/subcategory", subcategoryRoutes);
-app.use("/uploads/products", express.static("uploads/products"));
+app.use("/api/subsubcategory", subSubcategoryRoutes);
+app.use("/uploads", express.static("uploads"));
 // Default Route
 app.get("/", (req, res) => {
   res.send("E-Commerce API is running...");
