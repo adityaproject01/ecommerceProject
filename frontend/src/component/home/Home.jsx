@@ -7,40 +7,58 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState([]);
-  // const token = localStorage.getItem("token");
+  const [subCategories, setSubCategories] = useState([]);
+  const [subSubCategories, setSubSubCategories] = useState([]);
+
+  const [catId, setCatId] = useState("");
+  const [subCatId, setSubCatId] = useState("");
+
+  const [showSubcategory, setShowSubcategory] = useState(false);
+  const [showSubSubcategory, setShowSubSubcategory] = useState(false);
+
   const navigate = useNavigate();
+  const baseUrl = "http://localhost:5000";
 
   const logoutButton = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/products/");
-        setProducts(response.data.products);
-        console.log("Products fetched:", response.data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-    const fetchCategory = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/category");
-        setCategory(response.data);
-        console.log(response.data, "ddddd");
-      } catch (error) {
-        console.log(error);
-      }
-    };
 
-    fetchCategory();
-    fetchProducts();
+  useEffect(() => {
+    axios.get(`${baseUrl}/api/products/`).then((res) => {
+      setProducts(res.data.products);
+    });
+
+    axios.get(`${baseUrl}/api/category`).then((res) => {
+      setCategory(res.data);
+    });
   }, []);
+
+  useEffect(() => {
+    if (catId) {
+      axios
+        .get(`${baseUrl}/api/subcategory/category/${catId}`)
+        .then((res) => {
+          setSubCategories(res.data);
+          setShowSubcategory(true);
+          setShowSubSubcategory(false);
+        });
+    }
+  }, [catId]);
+
+  useEffect(() => {
+    if (subCatId) {
+      axios
+        .get(`${baseUrl}/api/subsubcategory/subcategory/${subCatId}`)
+        .then((res) => {
+          setSubSubCategories(res.data);
+          setShowSubSubcategory(true);
+        });
+    }
+  }, [subCatId]);
 
   return (
     <div className="home">
-      <div className="homeBody"></div>
       <div className="homeBackground">
         <div className="homeHeadderBody">
           <div className="homeHeadder">
@@ -48,37 +66,68 @@ const Home = () => {
           </div>
           <button onClick={logoutButton}>Logout</button>
         </div>
+
         <div className="homeBanner">
-          <div className="banner1">
-            <AutoSlider />
-          </div>
+          <AutoSlider />
         </div>
+
         <div className="category">
           <div className="subCategory">
-            {category.map((item, index) => (
-              <div key={index} className="categoryCard">
-                {console.log(item.image_url)}
-                <img
-                  src={`http://localhost:5000${item.image_url}`}
-                  alt=""
-                  className="categoryImage"
-                />
 
-                <p className="categoryDetails">{item.name}</p>
-              </div>
-            ))}
+            {/* Category Level */}
+            {!showSubcategory &&
+              category.map((item, index) => (
+                <div key={index} className="categoryCard">
+                  <img
+                    onClick={() => {
+                      setCatId(item.id);
+                    }}
+                    src={`${baseUrl}${item.image_url}`}
+                    alt=""
+                    className="categoryImage"
+                  />
+                  <p className="categoryDetails">{item.name}</p>
+                </div>
+              ))}
+
+            {/* Subcategory Level */}
+            {showSubcategory && !showSubSubcategory &&
+              subCategories.map((item, index) => (
+                <div key={index} className="categoryCard">
+                  <img
+                    onClick={() => {
+                      setSubCatId(item.id);
+                    }}
+                    src={`${baseUrl}${item.image_url}`}
+                    alt=""
+                    className="categoryImage"
+                  />
+                  <p className="categoryDetails">{item.subcategory_name}</p>
+                </div>
+              ))}
+
+            {/* Sub-Subcategory Level */}
+            {showSubSubcategory &&
+              subSubCategories.map((item, index) => (
+                <div key={index} className="categoryCard">
+                  <p>d</p>
+                </div>
+              )
+              
+              )}
+
           </div>
         </div>
+
         <div className="products">
           <div className="subProducts">
             {products.map((item, index) => (
               <div key={index} className="productCard">
                 <img
-                  src={`http://localhost:5000/${item.image_url}`}
+                  src={`${baseUrl}/${item.image_url}`}
                   alt=""
                   className="productImage"
                 />
-
                 <p className="categoryDetails">{item.name}</p>
               </div>
             ))}
