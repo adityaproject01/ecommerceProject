@@ -10,6 +10,7 @@ const Seller = () => {
   const [productDetails, setProductDetails] = useState([]);
   const [getCategoryDetails, setGetCategoryDetails] = useState([]);
   const [getSubCategoryDetails, setGetSubCategoryDetails] = useState([]);
+  const [getSubSubCategoryDetails, setGetSubSubCategoryDetails] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState(null);
 
@@ -20,13 +21,14 @@ const Seller = () => {
   const [productPrice, setProductPrice] = useState("");
   const [productCategory, setProductCategory] = useState("");
   const [productSubCategory, setProductSubCategory] = useState("");
+  const [productSubSubCategory, setProductSubSubCategory] = useState("");
   const [productImage, setProductImage] = useState(null);
   const [productDescription, setProductDescription] = useState("");
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-  });
+  },[]);
 
   useEffect(() => {
     if (productCategory) {
@@ -35,7 +37,13 @@ const Seller = () => {
       setGetSubCategoryDetails([]);
     }
   }, [productCategory]);
-
+  useEffect(() => {
+    if (productSubCategory) {
+      fetchSubSubCategories(productSubCategory);
+    } else {
+      setGetSubSubCategoryDetails([]); // Optional: clear sub-subcategories if no subcategory is selected
+    }
+  }, [productSubCategory]);
   const logoutButton = () => {
     localStorage.removeItem("token");
     navigate("/home");
@@ -52,7 +60,7 @@ const Seller = () => {
         setProductDetails(response.data.products);
       })
       .catch((error) => {
-        console.log("Fetch error", error);
+        console.log("Fetch my-products error", error);
       });
   };
 
@@ -72,14 +80,25 @@ const Seller = () => {
       .get(`http://localhost:5000/api/subcategory/category/${categoryId}`)
       .then((res) => {
         setGetSubCategoryDetails(res.data);
-        console.log(res.data,"S")
       })
       .catch((err) => {
         console.error("Failed to fetch subcategories", err);
         setGetSubCategoryDetails([]);
       });
   };
-
+  const fetchSubSubCategories = (productSubCategory) => {
+    axios
+      .get(`http://localhost:5000/api/subsubcategory/subcategory/${productSubCategory}`)
+      .then((res) => {
+        setGetSubSubCategoryDetails(res.data);
+      
+      })
+      .catch((err) => {
+        console.error("Failed to fetch subcategories", err);
+        setGetSubSubCategoryDetails([]);
+      });
+  };
+  
   const productDelete = (productId) => {
     axios
       .delete(`http://localhost:5000/api/products/${productId}`, {
@@ -95,17 +114,15 @@ const Seller = () => {
         console.log("DeleteError", error);
       });
   };
-
   const handleAddProduct = async (e) => {
     e.preventDefault();
 
     const formData = new FormData();
     formData.append("name", productName);
     formData.append("price", productPrice);
-    formData.append("category_id", productCategory);
+    formData.append("sub_subcategory_id", productSubSubCategory);
     formData.append("description", productDescription);
     formData.append("image", productImage);
-    formData.append("subcategory_id", productSubCategory);
 
     try {
       const response = await axios.post(
@@ -227,6 +244,11 @@ const Seller = () => {
                         ))}
                       </select>
                     </div>
+
+
+                    
+
+
                     <div className="productFiled">
                       <label>SubCategory</label>
                       <select
@@ -244,6 +266,26 @@ const Seller = () => {
                         ))}
                       </select>
                     </div>
+
+                    {/* subsub-cat */}
+                    <div className="productFiled">
+                      <label>SubSubCategory</label>
+                      <select
+                        value={productSubSubCategory}
+                        onChange={(e) => setProductSubSubCategory(e.target.value)}
+                      >
+                        <option value="">Select Subcategory</option>
+                        {getSubSubCategoryDetails.map((sub) => (
+                          <option
+                            key={sub.subsub_id}
+                            value={sub.subsub_id}
+                          >
+                            {sub.subsub_name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
 
                     <div className="productFiled">
                       <label>Image</label>

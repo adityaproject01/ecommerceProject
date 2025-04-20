@@ -11,7 +11,7 @@ const Home = () => {
   const [subSubCategories, setSubSubCategories] = useState([]);
 
   const [catId, setCatId] = useState("");
-  const [subCatId, setSubCatId] = useState("");
+  const [selectedSubCatId, setSelectedSubCatId] = useState(null);
 
   const [showSubcategory, setShowSubcategory] = useState(false);
   const [showSubSubcategory, setShowSubSubcategory] = useState(false);
@@ -34,28 +34,37 @@ const Home = () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (catId) {
-      axios
-        .get(`${baseUrl}/api/subcategory/category/${catId}`)
-        .then((res) => {
-          setSubCategories(res.data);
-          setShowSubcategory(true);
-          setShowSubSubcategory(false);
-        });
+  const handleCategoryClick = async (id) => {
+    try {
+      const res = await axios.get(`${baseUrl}/api/subcategory/category/${id}`);
+      setSubCategories(res.data);
+      setShowSubcategory(true);
+      setShowSubSubcategory(false);
+      setCatId(id);
+    } catch (err) {
+      console.log("Subcategory fetch failed:", err);
     }
-  }, [catId]);
+  };
 
-  useEffect(() => {
-    if (subCatId) {
-      axios
-        .get(`${baseUrl}/api/subsubcategory/subcategory/${subCatId}`)
-        .then((res) => {
-          setSubSubCategories(res.data);
-          setShowSubSubcategory(true);
-        });
+  const handleSubCategoryClick = async (subCatId) => {
+    setSelectedSubCatId(subCatId);
+    try {
+      const res = await axios.get(`${baseUrl}/api/subsubcategory/subcategory/${subCatId}`);
+      setSubSubCategories(res.data);
+      setShowSubSubcategory(true);
+    } catch (err) {
+      console.log("Sub-subcategory fetch failed:", err);
     }
-  }, [subCatId]);
+  };
+
+  const handleBackToCategories = () => {
+    setShowSubcategory(false);
+    setShowSubSubcategory(false);
+  };
+
+  const handleBackToSubcategories = () => {
+    setShowSubSubcategory(false);
+  };
 
   return (
     <div className="home">
@@ -73,15 +82,12 @@ const Home = () => {
 
         <div className="category">
           <div className="subCategory">
-
-            {/* Category Level */}
+            {/* Category List */}
             {!showSubcategory &&
               category.map((item, index) => (
                 <div key={index} className="categoryCard">
                   <img
-                    onClick={() => {
-                      setCatId(item.id);
-                    }}
+                    onClick={() => handleCategoryClick(item.id)}
                     src={`${baseUrl}${item.image_url}`}
                     alt=""
                     className="categoryImage"
@@ -90,32 +96,45 @@ const Home = () => {
                 </div>
               ))}
 
-            {/* Subcategory Level */}
-            {showSubcategory && !showSubSubcategory &&
-              subCategories.map((item, index) => (
-                <div key={index} className="categoryCard">
-                  <img
-                    onClick={() => {
-                      setSubCatId(item.id);
-                    }}
-                    src={`${baseUrl}${item.image_url}`}
-                    alt=""
-                    className="categoryImage"
-                  />
-                  <p className="categoryDetails">{item.subcategory_name}</p>
-                </div>
-              ))}
+            {/* Subcategory List */}
+            {showSubcategory && !showSubSubcategory && (
+              <>
+                <button className="" onClick={handleBackToCategories}>← Back to Categories</button>
+                {subCategories.map((item, index) => (
+                  <div key={index} className="categoryCard">
+                    <img
+                      onClick={() => handleSubCategoryClick(item.subcategory_id)}
+                      src={`${baseUrl}${item.image_url}`}
+                      alt=""
+                      className="categoryImage"
+                    />
+                    <p className="categoryDetails">{item.subcategory_name}</p>
+                  </div>
+                ))}
+              </>
+            )}
 
-            {/* Sub-Subcategory Level */}
-            {showSubSubcategory &&
-              subSubCategories.map((item, index) => (
-                <div key={index} className="categoryCard">
-                  <p>d</p>
-                </div>
-              )
-              
-              )}
-
+            {/* Sub-subcategory List */}
+            {showSubSubcategory && (
+              <>
+                <button onClick={handleBackToSubcategories}>← Back to Subcategories</button>
+                {subSubCategories.length > 0 ? (
+                  subSubCategories.map((item, index) => (
+                    <div key={index} className="categoryCard">
+                      <img
+                        src={`${baseUrl}${item.image_url}`}
+                        alt=""
+                        className="categoryImage"
+                      />
+                      <p className="categoryDetails">{item.subsubcategory_name}</p>
+                      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No sub-subcategories available.</p>
+                )}
+              </>
+            )}
           </div>
         </div>
 
