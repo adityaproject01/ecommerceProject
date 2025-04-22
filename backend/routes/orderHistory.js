@@ -3,54 +3,44 @@ const router = express.Router();
 const db = require("../db");
 const { verifyToken } = require("../middleware/authMiddleware");
 
-// 📦 Customer: View personal order history
-router.get("/customer", verifyToken, (req, res) => {
+// 🌍 View Order History (Customer, Seller, Admin)
+router.get("/", verifyToken, (req, res) => {
   const user = req.user;
-  if (user.role !== "customer")
-    return res.status(403).json({ message: "Only customers can access this" });
 
-  const sql = `
-    SELECT * FROM orders 
-    WHERE user_id = ? 
-    ORDER BY order_date DESC`;
+  let sql;
 
-  db.query(sql, [user.id], (err, results) => {
-    if (err) return res.status(500).json({ message: err.message });
-    res.status(200).json({ orderHistory: results });
-  });
-});
+  if (user.role === "customer") {
+    sql = "SELECT * FROM orders WHERE user_id = ?";
+    db.query(sql, [user.id], (err, results) => {
+      if (err) return res.status(500).json({ message: err.message });
 
-// 🧾 Seller: View all orders containing their products
-router.get("/seller", verifyToken, (req, res) => {
-  const user = req.user;
-  if (user.role !== "seller")
-    return res.status(403).json({ message: "Only sellers can access this" });
+      res.status(200).json(results);
+    });
+  }
 
-  const sql = `
-    SELECT * FROM orders 
-    WHERE seller_id = ? 
-    ORDER BY order_date DESC`;
+  if (user.role === "seller") {
+    sql = `
+      SELECT DISTINCT o.* 
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN products p ON oi.product_id = p.id
+      WHERE p.seller_id = ?
+    `;
+    db.query(sql, [user.id], (err, results) => {
+      if (err) return res.status(500).json({ message: err.message });
 
-  db.query(sql, [user.id], (err, results) => {
-    if (err) return res.status(500).json({ message: err.message });
-    res.status(200).json({ sellerOrders: results });
-  });
-});
+      res.status(200).json(results);
+    });
+  }
 
-// 🧮 Admin: View all order history across platform
-router.get("/admin", verifyToken, (req, res) => {
-  const user = req.user;
-  if (user.role !== "admin")
-    return res.status(403).json({ message: "Only admins can access this" });
+  if (user.role === "admin") {
+    sql = "SELECT * FROM orders";
+    db.query(sql, (err, results) => {
+      if (err) return res.status(500).json({ message: err.message });
 
-  const sql = `
-    SELECT * FROM orders 
-    ORDER BY order_date DESC`;
-
-  db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ message: err.message });
-    res.status(200).json({ allOrders: results });
-  });
+      res.status(200).json(results);
+    });
+  }
 });
 
 module.exports = router;

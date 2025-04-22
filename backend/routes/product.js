@@ -7,7 +7,7 @@ const { verifyToken } = require("../middleware/authMiddleware");
 // ➕ Setup Multer Storage for image upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/products/");
+    cb(null, "uploads/");
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
@@ -27,7 +27,7 @@ router.post("/add", verifyToken, upload.single("image"), async (req, res) => {
   const { name, description, sub_subcategory_id } = req.body;
   const baseUrl = req.protocol + "://" + req.get("host");
   const imageFilename = req.file
-    ? `${baseUrl}/uploads/products/${req.file.filename}`
+    ? `${baseUrl}/uploads/${req.file.filename}`
     : null;
   const price = parseFloat(req.body.price);
   const subSubcatId =
@@ -172,7 +172,7 @@ router.put("/:id", verifyToken, upload.single("image"), (req, res) => {
   const user = req.user;
   const baseUrl = req.protocol + "://" + req.get("host");
   const imageFilename = req.file
-    ? `${baseUrl}/uploads/products/${req.file.filename}`
+    ? `${baseUrl}/uploads/${req.file.filename}`
     : null;
   const price = parseFloat(req.body.price);
   const subSubcatId =

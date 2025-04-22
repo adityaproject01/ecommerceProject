@@ -15,8 +15,14 @@ import {
 import AdminCategory from "./component/admin/adminCategory/AdminCategory";
 import AdminSubCategory from "./component/admin/adminSubCategory/AdminSubCategory";
 import AdminSubSubCategory from "./component/admin/adminSubSubCategory/AdminSubSubCategory";
-
+import ViewMore from "./component/viewMore/ViewMore";
+import { useState } from "react";
+import Cart from "./component/cart/Cart";
+import PlaceOrder from "./component/placeOrder/PlaceOrder";
+import OrderConfirmation from "./component/orderConfirmation/OrderConfirmation";
+import OrderHistory from "./component/orderHistory/OrderHistory";
 function App() {
+  const [ViewMoreDetails, setViewMoreDetails] = useState([]);
   return (
     <Router>
       <Routes>
@@ -25,8 +31,41 @@ function App() {
         <Route
           path="/home"
           element={
-            <ProtectedRoute element={<Home />} allowedRoles={["customer"]} />
+            <ProtectedRoute
+              element={<Home setViewMoreDetails={setViewMoreDetails} />}
+              allowedRoles={["customer"]}
+            />
           }
+        />
+        <Route
+          path="/home/viewmore"
+          element={<ViewMore ViewMoreDetails={ViewMoreDetails} />}
+          allowedRoles={["customer"]}
+        />
+
+        <Route
+          path="/home/place-order"
+          element={<PlaceOrder />}
+          allowedRoles={["customer"]}
+        />
+        <Route
+          path="/home/order-confirmation/:orderId"
+          element={
+            <ProtectedRoute
+              element={<OrderConfirmation />}
+              allowedRoles={["customer", "seller", "admin"]}
+            />
+          }
+        />
+        <Route
+          path="/home/order-history"
+          element={<OrderHistory />}
+          allowedRoles={["customer", "seller", "admin"]}
+        />
+        <Route
+          path="/home/cart"
+          element={<Cart />}
+          allowedRoles={["customer"]}
         />
         <Route
           path="/seller"

@@ -4,14 +4,11 @@ import AutoSlider from "./AutoSlider";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const Home = () => {
+const Home = ({setViewMoreDetails}) => {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [subSubCategories, setSubSubCategories] = useState([]);
-
-  const [catId, setCatId] = useState("");
-  const [selectedSubCatId, setSelectedSubCatId] = useState(null);
 
   const [showSubcategory, setShowSubcategory] = useState(false);
   const [showSubSubcategory, setShowSubSubcategory] = useState(false);
@@ -40,14 +37,14 @@ const Home = () => {
       setSubCategories(res.data);
       setShowSubcategory(true);
       setShowSubSubcategory(false);
-      setCatId(id);
+
     } catch (err) {
       console.log("Subcategory fetch failed:", err);
     }
   };
 
   const handleSubCategoryClick = async (subCatId) => {
-    setSelectedSubCatId(subCatId);
+  
     try {
       const res = await axios.get(`${baseUrl}/api/subsubcategory/subcategory/${subCatId}`);
       setSubSubCategories(res.data);
@@ -142,12 +139,16 @@ const Home = () => {
           <div className="subProducts">
             {products.map((item, index) => (
               <div key={index} className="productCard">
+              
                 <img
-                  src={`${baseUrl}/${item.image_url}`}
+                  src={item.image_url}
                   alt=""
                   className="productImage"
                 />
                 <p className="categoryDetails">{item.name}</p>
+                <p>{item.price}</p>
+                {setViewMoreDetails(item)}
+                <button onClick={()=>{navigate("/home/viewmore")}}>ViewMore</button>
               </div>
             ))}
           </div>
