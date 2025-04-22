@@ -28,10 +28,7 @@ const LoginPage = () => {
       const { token } = response.data;
       const {user}=response.data;
       const role=user.role
-      setInterval(()=>{
-        localStorage.removeItem("token");
-        console.log(`${token} removed from localStorage`);
-      },3600000)
+     
       if (token) {
         localStorage.setItem("token", token);
         localStorage.setItem("role", role);
