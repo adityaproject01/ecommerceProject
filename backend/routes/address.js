@@ -1,13 +1,14 @@
-// backend/routes/address.js
-
 const express = require("express");
 const router = express.Router();
 const db = require("../db");
 const { verifyToken } = require("../middleware/authMiddleware");
 
-// 📮 CREATE: Add New Address
-router.post("/", verifyToken, (req, res) => {
-  const user = req.user;
+// 📮 CREATE: Add New Address (POST /address/add)
+router.post("/add", verifyToken, (req, res) => {
+  const user = req.user; // Extract user from the verified token
+  if (user.role !== "customer") {
+    return res.status(403).json({ message: "Only customers can add to cart" });
+  }
   const {
     full_name,
     phone,
@@ -19,6 +20,7 @@ router.post("/", verifyToken, (req, res) => {
     country,
   } = req.body;
 
+  // Check required fields
   if (
     !full_name ||
     !phone ||
@@ -33,20 +35,22 @@ router.post("/", verifyToken, (req, res) => {
       .json({ message: "All required fields must be provided" });
   }
 
+  // SQL Query for inserting address into the database
   const sql = `
     INSERT INTO address 
     (user_id, full_name, phone, address_line1, address_line2, city, state, postal_code, country)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
+  // Executing the query with user_id from the verified token
   db.query(
     sql,
     [
-      user.id,
+      user.id, // User ID comes from the token
       full_name,
       phone,
       address_line1,
-      address_line2 || "",
+      address_line2 || "", // If address_line2 is not provided, set it to an empty string
       city,
       state,
       postal_code,
@@ -58,12 +62,23 @@ router.post("/", verifyToken, (req, res) => {
       res.status(201).json({
         message: "Address added successfully",
         addressId: result.insertId,
+        data: {
+          user_id: user.id, // Return user_id in response as well
+          full_name,
+          phone,
+          address_line1,
+          address_line2: address_line2 || "", // Return address_line2 as an empty string if not provided
+          city,
+          state,
+          postal_code,
+          country,
+        },
       });
     }
   );
 });
 
-// 📋 READ: Get All Addresses for Logged-in User
+// 📋 READ: Get All Addresses for Logged-in User (GET /address)
 router.get("/", verifyToken, (req, res) => {
   const user = req.user;
 
@@ -75,7 +90,7 @@ router.get("/", verifyToken, (req, res) => {
   });
 });
 
-// ✏️ UPDATE: Update an Address
+// ✏️ UPDATE: Update an Address (PUT /address/:id)
 router.put("/:id", verifyToken, (req, res) => {
   const user = req.user;
   const addressId = req.params.id;
@@ -90,6 +105,7 @@ router.put("/:id", verifyToken, (req, res) => {
     country,
   } = req.body;
 
+  // Check required fields
   if (
     !full_name ||
     !phone ||
@@ -104,6 +120,7 @@ router.put("/:id", verifyToken, (req, res) => {
       .json({ message: "All required fields must be provided" });
   }
 
+  // SQL Query to update the address
   const sql = `
     UPDATE address SET 
       full_name = ?, phone = ?, address_line1 = ?, address_line2 = ?, 
@@ -111,19 +128,20 @@ router.put("/:id", verifyToken, (req, res) => {
     WHERE id = ? AND user_id = ?
   `;
 
+  // Executing the update query
   db.query(
     sql,
     [
       full_name,
       phone,
       address_line1,
-      address_line2 || "",
+      address_line2 || "", // If address_line2 is not provided, set it to an empty string
       city,
       state,
       postal_code,
       country,
       addressId,
-      user.id,
+      user.id, // Ensure the user_id is part of the query
     ],
     (err, result) => {
       if (err) return res.status(500).json({ message: err.message });
@@ -139,13 +157,15 @@ router.put("/:id", verifyToken, (req, res) => {
   );
 });
 
-// ❌ DELETE: Delete an Address
+// ❌ DELETE: Delete an Address (DELETE /address/:id)
 router.delete("/:id", verifyToken, (req, res) => {
   const user = req.user;
   const addressId = req.params.id;
 
+  // SQL Query to delete the address
   const sql = "DELETE FROM address WHERE id = ? AND user_id = ?";
 
+  // Executing the delete query
   db.query(sql, [addressId, user.id], (err, result) => {
     if (err) return res.status(500).json({ message: err.message });
 
