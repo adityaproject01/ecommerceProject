@@ -12,6 +12,7 @@ const addressRoutes = require("./routes/address");
 const categoryRoutes = require("./routes/category");
 const subcategoryRoutes = require("./routes/subcategory");
 const subSubcategoryRoutes = require("./routes/subsubcategories");
+const subsubsubcategoryRoutes = require("./routes/subsubsubCategory");
 const orderConfirmationRoutes = require("./routes/orderConfirmation");
 const orderHistoryRoutes = require("./routes/orderHistory");
 
@@ -33,6 +34,7 @@ app.use("/api/checkout", checkoutRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/subcategory", subcategoryRoutes);
 app.use("/api/subsubcategory", subSubcategoryRoutes);
+app.use("/api/subsubsubcategory", subsubsubcategoryRoutes);
 app.use("/api/order-confirmation", orderConfirmationRoutes);
 app.use("/api/order-history", orderHistoryRoutes);
 

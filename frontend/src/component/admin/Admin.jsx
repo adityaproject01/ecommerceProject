@@ -10,6 +10,7 @@ const Admin = () => {
         <button onClick={() => navigate("/admin/admincategory")}>category </button>
         <button onClick={() => navigate("/admin/adminsubcategory")}>subcategory </button>
         <button onClick={() => navigate("/admin/adminsubsubcategory")}>sub-sub-category </button>
+        <button onClick={() => navigate("/admin/adminsubsubsubcategory")}>sub-Sub-sub-category </button>
       </div>
       <div>
 

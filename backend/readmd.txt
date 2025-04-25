@@ -279,6 +279,30 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE sub_subcategories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  subcategory_id INT NOT NULL,  -- Foreign key reference to the subcategory table
+  image_url VARCHAR(255),
+  FOREIGN KEY (subcategory_id) REFERENCES subcategories(id) ON DELETE CASCADE
+);
+
+CREATE TABLE sub_sub_subcategories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  sub_subcategory_id INT NOT NULL,  -- Foreign key reference to the sub_subcategories table
+  image_url VARCHAR(255),
+  FOREIGN KEY (sub_subcategory_id) REFERENCES sub_subcategories(id) ON DELETE CASCADE
+);
+
+
+ALTER TABLE products ADD COLUMN sub_sub_subcategory_id INT;
+
+
+ALTER TABLE products 
+ADD CONSTRAINT fk_sub_sub_subcategory
+FOREIGN KEY (sub_sub_subcategory_id) REFERENCES sub_sub_subcategories(id)
+ON DELETE SET NULL;
 
 
 ALTER TABLE addresses ADD CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id);
@@ -291,3 +315,5 @@ ALTER TABLE orders ADD CONSTRAINT fk_orders_address_id FOREIGN KEY (address_id) 
 ALTER TABLE products ADD CONSTRAINT fk_products_category_id FOREIGN KEY (category_id) REFERENCES categories(id);
 ALTER TABLE products ADD CONSTRAINT fk_products_seller_id FOREIGN KEY (seller_id) REFERENCES users(id);
 ALTER TABLE subcategories ADD CONSTRAINT fk_subcategories_category_id FOREIGN KEY (category_id) REFERENCES categories(id);
+ALTER TABLE sub_subcategories ADD CONSTRAINT fk_sub_subcategories_subcategory_id FOREIGN KEY (subcategory_id) REFERENCES subcategories(id) ON DELETE CASCADE;
+ALTER TABLE sub_sub_subcategories ADD CONSTRAINT fk_sub_sub_subcategories_sub_subcategory_id FOREIGN KEY (sub_subcategory_id) REFERENCES sub_subcategories(id) ON DELETE CASCADE;

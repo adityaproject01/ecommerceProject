@@ -16,6 +16,7 @@ import Cart from "./component/cart/Cart";
 import PlaceOrder from "./component/placeOrder/PlaceOrder";
 import OrderConfirmation from "./component/orderConfirmation/OrderConfirmation";
 import OrderHistory from "./component/orderHistory/OrderHistory";
+import AdminSubSubSubCategory from "./component/admin/adminSubSubSubCategory/AdminSubSubSubCategory";
 function App() {
   const navigate = useNavigate();
   const [ViewMoreDetails, setViewMoreDetails] = useState([]);
@@ -119,6 +120,15 @@ function App() {
         element={
           <ProtectedRoute
             element={<AdminSubSubCategory />}
+            allowedRoles={["admin"]}
+          />
+        }
+      />
+      <Route
+        path="/admin/adminsubsubsubcategory"
+        element={
+          <ProtectedRoute
+            element={<AdminSubSubSubCategory />}
             allowedRoles={["admin"]}
           />
         }

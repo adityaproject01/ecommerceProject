@@ -11,24 +11,27 @@ const Seller = () => {
   const [getCategoryDetails, setGetCategoryDetails] = useState([]);
   const [getSubCategoryDetails, setGetSubCategoryDetails] = useState([]);
   const [getSubSubCategoryDetails, setGetSubSubCategoryDetails] = useState([]);
+  const [getSubSubSubCategoryDetails, setGetSubSubSubCategoryDetails] = useState([]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState(null);
-
-  const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
   const [productCategory, setProductCategory] = useState("");
   const [productSubCategory, setProductSubCategory] = useState("");
   const [productSubSubCategory, setProductSubSubCategory] = useState("");
+  const [productSubSubSubCategory, setProductSubSubSubCategory] = useState("");
   const [productImage, setProductImage] = useState(null);
   const [productDescription, setProductDescription] = useState("");
+
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-  },[]);
+  }, []);
 
   useEffect(() => {
     if (productCategory) {
@@ -37,13 +40,23 @@ const Seller = () => {
       setGetSubCategoryDetails([]);
     }
   }, [productCategory]);
+
   useEffect(() => {
     if (productSubCategory) {
       fetchSubSubCategories(productSubCategory);
     } else {
-      setGetSubSubCategoryDetails([]); // Optional: clear sub-subcategories if no subcategory is selected
+      setGetSubSubCategoryDetails([]);
     }
   }, [productSubCategory]);
+
+  useEffect(() => {
+    if (productSubSubCategory) {
+      fetchSubSubSubCategories(productSubSubCategory);
+    } else {
+      setGetSubSubSubCategoryDetails([]);
+    }
+  }, [productSubSubCategory]);
+
   const logoutButton = () => {
     localStorage.removeItem("token");
     navigate("/home");
@@ -52,91 +65,74 @@ const Seller = () => {
   const fetchProducts = () => {
     axios
       .get("http://localhost:5000/api/products/my-products", {
-        headers: {
-          Authorization: token,
-        },
+        headers: { Authorization: token },
       })
-      .then((response) => {
-        setProductDetails(response.data.products);
-      })
-      .catch((error) => {
-        console.log("Fetch my-products error", error);
-      });
+      .then((res) => setProductDetails(res.data.products))
+      .catch((err) => console.log("Fetch my-products error", err));
   };
 
   const fetchCategories = () => {
     axios
       .get("http://localhost:5000/api/category")
-      .then((response) => {
-        setGetCategoryDetails(response.data);
-      })
-      .catch((error) => {
-        console.log("Fetch category error", error);
-      });
+      .then((res) => setGetCategoryDetails(res.data))
+      .catch((err) => console.log("Fetch category error", err));
   };
 
   const fetchSubCategories = (categoryId) => {
     axios
       .get(`http://localhost:5000/api/subcategory/category/${categoryId}`)
-      .then((res) => {
-        setGetSubCategoryDetails(res.data);
-      })
+      .then((res) => setGetSubCategoryDetails(res.data))
       .catch((err) => {
         console.error("Failed to fetch subcategories", err);
         setGetSubCategoryDetails([]);
       });
   };
-  const fetchSubSubCategories = (productSubCategory) => {
+
+  const fetchSubSubCategories = (subcategoryId) => {
     axios
-      .get(`http://localhost:5000/api/subsubcategory/subcategory/${productSubCategory}`)
-      .then((res) => {
-        setGetSubSubCategoryDetails(res.data);
-      
-      })
+      .get(`http://localhost:5000/api/subsubcategory/subcategory/${subcategoryId}`)
+      .then((res) => setGetSubSubCategoryDetails(res.data))
       .catch((err) => {
-        console.error("Failed to fetch subcategories", err);
+        console.error("Failed to fetch sub-subcategories", err);
         setGetSubSubCategoryDetails([]);
       });
   };
-  
+
+  const fetchSubSubSubCategories = (subSubcategoryId) => {
+    axios
+      .get(`http://localhost:5000/api/subsubsubcategory/subsubcategory/${subSubcategoryId}`)
+      .then((res) => setGetSubSubSubCategoryDetails(res.data))
+      .catch((err) => {
+        console.error("Failed to fetch sub-sub-subcategories", err);
+        setGetSubSubSubCategoryDetails([]);
+      });
+  };
+
   const productDelete = (productId) => {
     axios
       .delete(`http://localhost:5000/api/products/${productId}`, {
-        headers: {
-          Authorization: token,
-        },
+        headers: { Authorization: token },
       })
-      .then((response) => {
-        console.log("Deleted", response.data);
-        fetchProducts();
-      })
-      .catch((error) => {
-        console.log("DeleteError", error);
-      });
+      .then(() => fetchProducts())
+      .catch((err) => console.log("DeleteError", err));
   };
+
   const handleAddProduct = async (e) => {
     e.preventDefault();
-
     const formData = new FormData();
     formData.append("name", productName);
     formData.append("price", productPrice);
-    formData.append("sub_subcategory_id", productSubSubCategory);
+    formData.append("sub_sub_subcategory_id", productSubSubSubCategory);
     formData.append("description", productDescription);
     formData.append("image", productImage);
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/products/add",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: token,
-          },
-        }
-      );
-
-      console.log("Product added", response.data);
+      await axios.post("http://localhost:5000/api/products/add", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: token,
+        },
+      });
       fetchProducts();
       closeModal();
     } catch (error) {
@@ -146,7 +142,6 @@ const Seller = () => {
 
   const handlEditProduct = async (e, productId) => {
     e.preventDefault();
-
     const formData = new FormData();
     formData.append("name", productName);
     formData.append("price", productPrice);
@@ -155,18 +150,12 @@ const Seller = () => {
     if (productImage) formData.append("image", productImage);
 
     try {
-      const response = await axios.put(
-        `http://localhost:5000/api/products/${productId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: token,
-          },
-        }
-      );
-      console.log(response.data)
-      alert("Product updated");
+      await axios.put(`http://localhost:5000/api/products/${productId}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: token,
+        },
+      });
       fetchProducts();
       closeModal();
     } catch (error) {
@@ -182,6 +171,8 @@ const Seller = () => {
     setProductPrice("");
     setProductCategory("");
     setProductSubCategory("");
+    setProductSubSubCategory("");
+    setProductSubSubSubCategory("");
     setProductImage(null);
     setProductDescription("");
   };
@@ -206,105 +197,61 @@ const Seller = () => {
                   <button onClick={closeModal}>Close</button>
                 </div>
                 <div className="productForm">
-                  <form
-                    onSubmit={async (e) => {
-                      if (isEditing) {
-                        await handlEditProduct(e, currentEditId);
-                      } else {
-                        await handleAddProduct(e);
-                      }
-                    }}
-                  >
+                  <form onSubmit={(e) => isEditing ? handlEditProduct(e, currentEditId) : handleAddProduct(e)}>
                     <div className="productFiled">
                       <label>Name</label>
-                      <input
-                        value={productName}
-                        onChange={(e) => setProductName(e.target.value)}
-                      />
+                      <input value={productName} onChange={(e) => setProductName(e.target.value)} />
                     </div>
                     <div className="productFiled">
                       <label>Price</label>
-                      <input
-                        type="number"
-                        value={productPrice}
-                        onChange={(e) => setProductPrice(e.target.value)}
-                      />
+                      <input type="number" value={productPrice} onChange={(e) => setProductPrice(e.target.value)} />
                     </div>
                     <div className="productFiled">
                       <label>Category</label>
-                      <select
-                        value={productCategory}
-                        onChange={(e) => setProductCategory(e.target.value)}
-                      >
+                      <select value={productCategory} onChange={(e) => setProductCategory(e.target.value)}>
                         <option value="">Select Category</option>
                         {getCategoryDetails.map((cat) => (
-                          <option key={cat.id} value={cat.id}>
-                            {cat.name}
-                          </option>
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
                         ))}
                       </select>
                     </div>
-
-
-                    
-
-
                     <div className="productFiled">
                       <label>SubCategory</label>
-                      <select
-                        value={productSubCategory}
-                        onChange={(e) => setProductSubCategory(e.target.value)}
-                      >
-                        <option value="">Select Subcategory</option>
+                      <select value={productSubCategory} onChange={(e) => setProductSubCategory(e.target.value)}>
+                        <option value="">Select SubCategory</option>
                         {getSubCategoryDetails.map((sub) => (
-                          <option
-                            key={sub.subcategory_id}
-                            value={sub.subcategory_id}
-                          >
-                            {sub.subcategory_name}
-                          </option>
+                          <option key={sub.subcategory_id} value={sub.subcategory_id}>{sub.subcategory_name}</option>
                         ))}
                       </select>
                     </div>
-
-                    {/* subsub-cat */}
                     <div className="productFiled">
                       <label>SubSubCategory</label>
-                      <select
-                        value={productSubSubCategory}
-                        onChange={(e) => setProductSubSubCategory(e.target.value)}
-                      >
-                        <option value="">Select Subcategory</option>
+                      <select value={productSubSubCategory} onChange={(e) => setProductSubSubCategory(e.target.value)}>
+                        <option value="">Select SubSubCategory</option>
                         {getSubSubCategoryDetails.map((sub) => (
-                          <option
-                            key={sub.subsub_id}
-                            value={sub.subsub_id}
-                          >
-                            {sub.subsub_name}
-                          </option>
+                          <option key={sub.subsub_id} value={sub.subsub_id}>{sub.subsub_name}</option>
                         ))}
                       </select>
                     </div>
-
-
+                    <div className="productFiled">
+                      <label>SubSubSubCategory</label>
+                      <select value={productSubSubSubCategory} onChange={(e) => setProductSubSubSubCategory(e.target.value)}>
+                        <option value="">Select SubSubSubCategory</option>
+                        {getSubSubSubCategoryDetails.map((sub) => (
+                          <option key={sub.id} value={sub.id}>{sub.name}</option>
+                        ))}
+                      </select>
+                    </div>
                     <div className="productFiled">
                       <label>Image</label>
-                      <input
-                        type="file"
-                        onChange={(e) => setProductImage(e.target.files[0])}
-                      />
+                      <input type="file" onChange={(e) => setProductImage(e.target.files[0])} />
                     </div>
                     <div className="productFiled">
                       <label>Description</label>
-                      <input
-                        value={productDescription}
-                        onChange={(e) => setProductDescription(e.target.value)}
-                      />
+                      <input value={productDescription} onChange={(e) => setProductDescription(e.target.value)} />
                     </div>
                     <div className="productFiled">
-                      <button type="submit">
-                        {isEditing ? "Update" : "Submit"}
-                      </button>
+                      <button type="submit">{isEditing ? "Update" : "Submit"}</button>
                     </div>
                   </form>
                 </div>
@@ -334,27 +281,22 @@ const Seller = () => {
                 </p>
                 <p className="productDetails">{product.description}</p>
                 <p className="productDetails">
-                  <button className="button">
-                    <img
-                      src={editImg}
-                      alt="Edit"
-                      onClick={() => {
-                        setIsModalOpen(true);
-                        setIsEditing(true);
-                        setCurrentEditId(product.id);
-                        setProductName(product.name);
-                        setProductPrice(product.price);
-                        setProductCategory(product.category_id);
-                        setProductSubCategory(product.subcategory_id);
-                        setProductDescription(product.description);
-                        setProductImage(null);
-                      }}
-                    />
+                  <button className="button" onClick={() => {
+                    setIsModalOpen(true);
+                    setIsEditing(true);
+                    setCurrentEditId(product.id);
+                    setProductName(product.name);
+                    setProductPrice(product.price);
+                    setProductCategory(product.category_id);
+                    setProductSubCategory(product.subcategory_id);
+                    setProductSubSubCategory(product.sub_subcategory_id);
+                    setProductSubSubSubCategory(product.sub_sub_subcategory_id || "");
+                    setProductDescription(product.description);
+                    setProductImage(null);
+                  }}>
+                    <img src={editImg} alt="Edit" />
                   </button>
-                  <button
-                    className="button"
-                    onClick={() => productDelete(product.id)}
-                  >
+                  <button className="button" onClick={() => productDelete(product.id)}>
                     <img src={deleteImg} alt="Delete" />
                   </button>
                 </p>

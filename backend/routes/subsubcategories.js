@@ -9,20 +9,22 @@ router.post("/add", verifyToken, upload.single("image"), (req, res) => {
   const user = req.user;
   const { name } = req.body;
   const subcategory_id = parseInt(req.body.subcategory_id);
-  console.log(subcategory_id);
-  console.log(req.body);
+
   if (user.role !== "admin") {
     return res
       .status(403)
       .json({ message: "Only admin can add sub-subcategories" });
   }
 
-  if (!name || !subcategory_id || !req.file) {
-    return res
-      .status(400)
-      .json({ message: "Name, subcategory ID, and image are required" });
+  if (!name) {
+    return res.status(400).json({ message: "Name" });
   }
-
+  if (!subcategory_id) {
+    return res.status(400).json({ message: "subcategory ID" });
+  }
+  if (!req.file) {
+    return res.status(400).json({ message: " image are required" });
+  }
   const image_url = `/uploads/${req.file.filename}`;
   const sql = `
     INSERT INTO sub_subcategories (name, subcategory_id, image_url)

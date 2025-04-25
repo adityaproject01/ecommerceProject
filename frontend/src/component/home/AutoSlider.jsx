@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./home.css"
+import homecss from './home.module.css'; 
 import banner1 from "../../images/banner/3826413.jpg";
 import banner2 from "../../images/banner/4685339.jpg";
 import banner3 from "../../images/banner/6260330.jpg";
@@ -19,7 +19,7 @@ const AutoSlider = () => {
   }, []);
 
   return (
-    <div className="slider-container sliderContainerStyles" >
+    <div className={`${homecss['slider-container']} ${homecss['slider-container-styles']}`}>
       <img
         src={images[currentIndex]}
         alt={`Slide ${currentIndex}`}
@@ -27,7 +27,4 @@ const AutoSlider = () => {
     </div>
   );
 };
-
-
-
 export default AutoSlider;
