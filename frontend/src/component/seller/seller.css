@@ -92,6 +92,14 @@
   height: 60%;
   border: 1px solid white;
 }
+.productDetailsDes{
+  overflow-y: scroll;
+  width: 10%;
+  
+}
+.productDetailsSlNo{
+  width: 10%;
+}
 .product {
   width: 100%;
   height: 10%;

@@ -275,11 +275,12 @@ const Seller = () => {
                 <p className="productDetails">{index + 1}</p>
                 <p className="productDetails">{product.name}</p>
                 <p className="productDetails">{product.price}</p>
-                <p className="productDetails">{product.category_id}</p>
+               
+                <p className="productDetails">{product.name}</p>
                 <p className="productDetails">
                   <img src={product.image_url} alt="product" height="50" />
                 </p>
-                <p className="productDetails">{product.description}</p>
+                <p className="productDetailsDes">{product.description}</p>
                 <p className="productDetails">
                   <button className="button" onClick={() => {
                     setIsModalOpen(true);

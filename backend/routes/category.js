@@ -8,9 +8,9 @@ const upload = require("../middleware/upload");
 // ➕ Add category (admin only)
 
 router.post("/add", verifyToken, upload.single("image"), (req, res) => {
+  console.log(req.body);
   const user = req.user;
   const { name } = req.body;
-
   if (user.role !== "admin") {
     return res.status(403).json({ message: "Only admin can add categories" });
   }
@@ -42,10 +42,10 @@ router.get("/", (req, res) => {
 });
 
 // 🔄 Update category (admin only)
-router.put("/:id", verifyToken, (req, res) => {
+router.put("/:id", verifyToken, upload.single("image"), (req, res) => {
   const user = req.user;
   const categoryId = req.params.id;
-  const { name, image_url } = req.body;
+  const { name } = req.body;
 
   if (user.role !== "admin") {
     return res
@@ -57,16 +57,47 @@ router.put("/:id", verifyToken, (req, res) => {
     return res.status(400).json({ message: "Category name is required" });
   }
 
-  const sql = "UPDATE categories SET name = ?, image_url = ? WHERE id = ?";
-  db.query(sql, [name, image_url || "", categoryId], (err, result) => {
-    if (err) return res.status(500).json({ message: err.message });
+  const baseUrl = req.protocol + "://" + req.get("host");
+  const newImageUrl = req.file
+    ? `${baseUrl}/uploads/${req.file.filename}`
+    : null;
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Category not found" });
-    }
+  // If no image uploaded, fetch the current one
+  if (!newImageUrl) {
+    const getImageQuery = "SELECT image_url FROM categories WHERE id = ?";
+    db.query(getImageQuery, [categoryId], (err, results) => {
+      if (err) return res.status(500).json({ message: err.message });
+      if (results.length === 0) {
+        return res.status(404).json({ message: "Category not found" });
+      }
 
-    res.status(200).json({ message: "Category updated successfully" });
-  });
+      const currentImageUrl = results[0].image_url;
+
+      const updateQuery =
+        "UPDATE categories SET name = ?, image_url = ? WHERE id = ?";
+      db.query(
+        updateQuery,
+        [name, currentImageUrl, categoryId],
+        (err, result) => {
+          if (err) return res.status(500).json({ message: err.message });
+          res.status(200).json({ message: "Category updated successfully" });
+        }
+      );
+    });
+  } else {
+    // If image is uploaded, update both name and image
+    const updateQuery =
+      "UPDATE categories SET name = ?, image_url = ? WHERE id = ?";
+    db.query(updateQuery, [name, newImageUrl, categoryId], (err, result) => {
+      if (err) return res.status(500).json({ message: err.message });
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: "Category not found" });
+      }
+
+      res.status(200).json({ message: "Category updated successfully" });
+    });
+  }
 });
 
 // ❌ Delete category (admin only)

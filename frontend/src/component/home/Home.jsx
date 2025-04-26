@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import homecss from './home.module.css';
+import homecss from "./home.module.css";
 import AutoSlider from "./AutoSlider";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +42,9 @@ const Home = ({ setViewMoreDetails }) => {
 
   const handleSubCategoryClick = async (subCatId) => {
     try {
-      const res = await axios.get(`${baseUrl}/api/subsubcategory/subcategory/${subCatId}`);
+      const res = await axios.get(
+        `${baseUrl}/api/subsubcategory/subcategory/${subCatId}`
+      );
       setSubSubCategories(res.data);
       setShowSubSubcategory(true);
       setShowSubSubSubcategory(false);
@@ -53,13 +55,15 @@ const Home = ({ setViewMoreDetails }) => {
 
   const handleSubSubCategoryClick = async (subSubCatId) => {
     try {
-      const res = await axios.get(`${baseUrl}/api/subsubsubcategory/subsubcategory/${subSubCatId}`);
+      const res = await axios.get(
+        `${baseUrl}/api/subsubsubcategory/subsubcategory/${subSubCatId}`
+      );
       setSubSubSubCategories(res.data);
       setShowSubSubSubcategory(true);
     } catch (err) {
       console.log("Sub-sub-subcategory fetch failed:", err);
     }
-    console.log(subSubCatId,"subSubSubCategories")
+    console.log(subSubCatId, "subSubSubCategories");
   };
 
   // Navigation handlers
@@ -110,16 +114,22 @@ const Home = ({ setViewMoreDetails }) => {
             {/* Subcategories */}
             {showSubcategory && !showSubSubcategory && (
               <>
-                <button onClick={handleBackToCategories}>← Back to Categories</button>
+                <button onClick={handleBackToCategories}>
+                  ← Back to Categories
+                </button>
                 {subCategories.map((item, index) => (
                   <div key={index} className={homecss.categoryCard}>
                     <img
-                      onClick={() => handleSubCategoryClick(item.subcategory_id)}
+                      onClick={() =>
+                        handleSubCategoryClick(item.subcategory_id)
+                      }
                       src={`${baseUrl}${item.image_url}`}
                       alt=""
                       className={homecss.categoryImage}
                     />
-                    <p className={homecss.categoryDetails}>{item.subcategory_name}</p>
+                    <p className={homecss.categoryDetails}>
+                      {item.subcategory_name}
+                    </p>
                   </div>
                 ))}
               </>
@@ -128,18 +138,23 @@ const Home = ({ setViewMoreDetails }) => {
             {/* Sub-subcategories */}
             {showSubSubcategory && !showSubSubSubcategory && (
               <>
-                <button onClick={handleBackToSubcategories}>← Back to Subcategories</button>
+                <button onClick={handleBackToSubcategories}>
+                  ← Back to Subcategories
+                </button>
                 {subSubCategories.length > 0 ? (
                   subSubCategories.map((item, index) => (
                     <div key={index} className={homecss.categoryCard}>
-                
                       <img
-                        onClick={() => handleSubSubCategoryClick(item.subsub_id)}
+                        onClick={() =>
+                          handleSubSubCategoryClick(item.subsub_id)
+                        }
                         src={`${baseUrl}${item.image_url}`}
                         alt=""
                         className={homecss.categoryImage}
                       />
-                      <p className={homecss.categoryDetails}>{item.subsub_name}</p>
+                      <p className={homecss.categoryDetails}>
+                        {item.subsub_name}
+                      </p>
                     </div>
                   ))
                 ) : (
@@ -147,16 +162,16 @@ const Home = ({ setViewMoreDetails }) => {
                 )}
               </>
             )}
-            
 
             {/* Sub-sub-subcategories */}
             {showSubSubSubcategory && (
               <>
-                <button onClick={handleBackToSubSubcategories}>← Back to Sub-subcategories</button>
+                <button onClick={handleBackToSubSubcategories}>
+                  ← Back to Sub-subcategories
+                </button>
                 {subSubSubCategories.length > 0 ? (
                   subSubSubCategories.map((item, index) => (
                     <div key={index} className={homecss.categoryCard}>
-                      
                       <img
                         src={`${baseUrl}${item.image_url}`}
                         alt={item.name}
@@ -178,11 +193,13 @@ const Home = ({ setViewMoreDetails }) => {
           <div className={homecss.subProducts}>
             {products.map((item, index) => (
               <div key={index} className={homecss.productCard}>
-                <img
-                  src={item.image_url}
-                  alt=""
-                  className={homecss.productImage}
-                />
+                <div className={homecss.productImageCard}>
+                  <img
+                    src={item.image_url}
+                    alt=""
+                    className={homecss.productImage}
+                  />
+                </div>
                 <p className={homecss.productDetailsName}>{item.name}</p>
                 <p>Price {item.price}</p>
                 {setViewMoreDetails(item)}
@@ -196,7 +213,47 @@ const Home = ({ setViewMoreDetails }) => {
                 </button>
               </div>
             ))}
+           
           </div>
+          <nav aria-label="pagination">
+              <ul className={homecss.pagination}>
+                <li>
+                  <div className={homecss.paginationLink}>
+                    <span aria-hidden="true">&laquo;</span>
+                    <span className={homecss.visuallyhidden}>previous set of pages</span>
+                  </div>
+                </li>
+                <li>
+                  <div className={homecss.paginationLink}>
+                    <span className={homecss.visuallyhidden}>page </span>1
+                  </div>
+                </li>
+                <li>
+                <div className={homecss.paginationLink}>
+
+                    <span className={homecss.visuallyhidden}>page </span>2
+                  </div>
+                </li>
+                <li>
+                  <div className={homecss.paginationLink}>
+                    {" "}
+                    <span className={homecss.visuallyhidden}>page </span>3{" "}
+                  </div>
+                </li>
+                <li>
+                  <div className={homecss.paginationLink}>
+                    {" "}
+                    <span className={homecss.visuallyhidden}>page </span>4{" "}
+                  </div>
+                </li>
+                <li>
+                  <div className={homecss.paginationLink}>
+                    <span className={homecss.visuallyhidden}>next set of pages</span>
+                    <span aria-hidden="true">&raquo;</span>
+                  </div>
+                </li>
+              </ul>
+            </nav>
         </div>
       </div>
     </div>

@@ -1,20 +1,45 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import "./adminCategory.css";
+import adminCatCss from "./adminCategory.module.css";
 import axios from "axios";
+
 const AdminCategory = () => {
   const navigate = useNavigate();
+
+  const [isCatEditOpen, setIsCatEditOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [categoryDetails, setCategoryDetails] = useState([]);
   const [adminCatName, setAdminCatName] = useState("");
   const [adminCatImg, setAdminCatImg] = useState("");
-  const token=localStorage.getItem("token")
+  const [catEditName, setCatEditName] = useState("");
+  const [catEditImg, setCatEditImg] = useState(null);
+  const [catId, setCatId] = useState();
+  const token = localStorage.getItem("token");
+
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/category", {
+          headers: { Authorization: token },
+        });
+        setCategoryDetails(response.data);
+      } catch (error) {
+        console.log("error", error);
+      }
+    };
+
+    fetchCategories();
+  }, [token]);
+
+  // Add new category
   const handleAdminCategory = async (e) => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("name", adminCatName);
     formData.append("image", adminCatImg);
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:5000/api/category/add",
         formData,
         {
@@ -24,75 +49,224 @@ const AdminCategory = () => {
           },
         }
       );
-      console.log(response,"response")
-      alert("Category is added")
-      closeModal()
+      alert("Category is added");
+      closeModal();
+      // Refetch categories
+      const res = await axios.get("http://localhost:5000/api/category", {
+        headers: { Authorization: token },
+      });
+      setCategoryDetails(res.data);
     } catch (error) {
       console.log(error, "error");
     }
   };
+
+  // Edit category
+  const handleEditCat = async () => {
+    const formData = new FormData();
+    formData.append("name", catEditName);
+    if (catEditImg) {
+      formData.append("image", catEditImg);
+    }
+    try {
+      await axios.put(
+        `http://localhost:5000/api/category/${parseInt(catId)}`,
+        formData,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      setIsCatEditOpen(false);
+      const res = await axios.get("http://localhost:5000/api/category", {
+        headers: { Authorization: token },
+      });
+      setCategoryDetails(res.data);
+    } catch (error) {
+      console.log("catEditError", error);
+    }
+  };
+
+  // Delete category
+  const handleDeleteCat = async (catDelId) => {
+    const catDelIdNum = parseInt(catDelId);
+    try {
+      await axios.delete(`http://localhost:5000/api/category/${catDelIdNum}`, {
+        headers: {
+          Authorization: token,
+        },
+      });
+      const res = await axios.get("http://localhost:5000/api/category", {
+        headers: { Authorization: token },
+      });
+      setCategoryDetails(res.data);
+    } catch (error) {
+      console.log("error delete category", error);
+    }
+  };
+
+  const logoutButton = () => {
+    localStorage.removeItem("token");
+    navigate("/home");
+  };
+
+  const handleCloseModal = () => {
+    setIsCatEditOpen(false);
+    setIsModalOpen(false);
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
+    setIsCatEditOpen(false);
     setAdminCatName("");
     setAdminCatImg("");
   };
-  return (
-    <div className="adminCategory">
-      <div className="adminCatNav">
-        <button onClick={() => navigate("/admin")}>Home </button>
-        <p>Catgory</p>
-        <button
-          onClick={() => {
-            setIsModalOpen(true);
-          }}
-        >
-          Add Button
-        </button>
-      </div>
-      <div className="adminCatBody">
-        <Outlet />
-        {isModalOpen ? (
-          <>
-            <div className="adminCatModal">
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                }}
-              >
-                Close
-              </button>
 
-              <div className="adminCatModalBody">
-                <form onSubmit={handleAdminCategory}>
-                  <div className="adminCatInput">
-                    <label>Name</label>
-                    <input
-                      type="text"
-                      onChange={(e) => {
-                        setAdminCatName(e.target.value);
-                      }}
-                    />
-                  </div>
-                  <div className="adminCatInput">
-                    <label>Image</label>
-                    <input
-                      type="file"
-                      onChange={(e) => {
-                        setAdminCatImg(e.target.files[0]);
-                      }}
-                    />
-                  </div>
-                  <div className="adminCatInput">
-                    <button type="submit">submit</button>
-                  </div>
-                </form>
+  const handleEditClick = (id) => {
+    const cat = categoryDetails.find((item) => item.id === id);
+    if (cat) {
+      setCatId(id);
+      setCatEditName(cat.name);
+      setCatEditImg(null); // reset file input
+      setIsCatEditOpen(true);
+    }
+  };
+
+  return (
+    <div className={adminCatCss.adminContainer}>
+      <nav className={adminCatCss.glassNavbar}>
+        <button
+          className={adminCatCss.navBtn}
+          onClick={() => navigate("/admin")}
+        >
+          Home
+        </button>
+        <div className={adminCatCss.navTitle}>Welcome, Admin</div>
+        <div style={{ display: "flex", gap: "1rem" }}>
+          <button
+            className={`${adminCatCss.navBtn} ${adminCatCss.addBtn}`}
+            onClick={() => setIsModalOpen(true)}
+          >
+            ➕ Add Category
+          </button>
+          <button
+            onClick={logoutButton}
+            className={`${adminCatCss.navBtn} ${adminCatCss.logout}`}
+          >
+            🔓 Logout
+          </button>
+        </div>
+      </nav>
+
+      <h2 className={adminCatCss.glassHeader}>Manage Categories</h2>
+
+      <Outlet />
+
+      {/* Add Category Modal */}
+      {isModalOpen && (
+        <div className="adminCatModal">
+          <button onClick={() => setIsModalOpen(false)}>Close</button>
+          <div className="adminCatModalBody">
+            <form onSubmit={handleAdminCategory}>
+              <div className="adminCatInput">
+                <label>Name</label>
+                <input
+                  type="text"
+                  onChange={(e) => setAdminCatName(e.target.value)}
+                />
               </div>
-            </div>
-          </>
-        ) : (
-          <></>
-        )}
+              <div className="adminCatInput">
+                <label>Image</label>
+                <input
+                  type="file"
+                  onChange={(e) => setAdminCatImg(e.target.files[0])}
+                />
+              </div>
+              <div className="adminCatInput">
+                <button type="submit">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className={`${adminCatCss.tableHeader} ${adminCatCss.glassRow}`}>
+        <div>ID</div>
+        <div>Name</div>
+        <div>Image</div>
+        <div>Actions</div>
       </div>
+
+      {/* Category Rows */}
+      {categoryDetails.map((item, index) => (
+        <div className={adminCatCss.glassRow} key={index}>
+          <div>{item.id}</div>
+          <div>{item.name}</div>
+          <div>
+            <img
+              src={item.image_url}
+              alt="loading"
+              className={adminCatCss.rowImage}
+            />
+          </div>
+          <div className="cat-actions">
+            <button
+              onClick={() => handleEditClick(item.id)}
+              className={adminCatCss.editBtn}
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => handleDeleteCat(item.id)}
+              className={adminCatCss.deleteBtn}
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      ))}
+
+      {/* Edit Modal */}
+      {isCatEditOpen && (
+        <div className={adminCatCss.modalBackdrop}>
+          <div
+            className={`${adminCatCss.modalContainer} ${adminCatCss.glassCard}`}
+          >
+            <h3>Edit Category</h3>
+            <form
+              onSubmit={(e) => {
+                handleEditCat();
+                e.preventDefault();
+              }}
+            >
+              <label>Category Name:</label>
+              <input
+                type="text"
+                value={catEditName}
+                onChange={(e) => setCatEditName(e.target.value)}
+              />
+              <label>New Image (optional):</label>
+              <input
+                type="file"
+                onChange={(e) => setCatEditImg(e.target.files[0])}
+              />
+              <div className={adminCatCss.modalActions}>
+                <button type="submit" className={adminCatCss.saveBtn}>
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className={adminCatCss.cancelBtn}
+                  onClick={handleCloseModal}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
