@@ -30,7 +30,8 @@ const Home = ({ setViewMoreDetails }) => {
 
   const handleCategoryClick = async (id) => {
     try {
-      const res = await axios.get(`${baseUrl}/api/subcategory/category/${id}`);
+      const res = await axios.get(`${baseUrl}/api/subcategories/category/${id}`);
+      console.log("object",res.data)
       setSubCategories(res.data);
       setShowSubcategory(true);
       setShowSubSubcategory(false);
@@ -112,6 +113,7 @@ const Home = ({ setViewMoreDetails }) => {
               ))}
 
             {/* Subcategories */}
+            {console.log(showSubSubcategory,"showSubSubcategory")}
             {showSubcategory && !showSubSubcategory && (
               <>
                 <button onClick={handleBackToCategories}>
@@ -123,7 +125,7 @@ const Home = ({ setViewMoreDetails }) => {
                       onClick={() =>
                         handleSubCategoryClick(item.subcategory_id)
                       }
-                      src={`${baseUrl}${item.image_url}`}
+                      src={item.image_url}
                       alt=""
                       className={homecss.categoryImage}
                     />

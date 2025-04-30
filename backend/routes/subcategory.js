@@ -21,8 +21,8 @@ router.post("/add", verifyToken, upload.single("image"), (req, res) => {
       .status(400)
       .json({ message: "Name, category ID, and image are required" });
   }
-
-  const image_url = `/uploads/${req.file.filename}`;
+  const baseUrl = req.protocol + "://" + req.get("host");
+  const image_url = req.file ? `${baseUrl}/uploads/${req.file.filename}` : null;
   const sql =
     "INSERT INTO subcategories (name, category_id, image_url) VALUES (?, ?, ?)";
   db.query(sql, [name, category_id, image_url], (err, result) => {
@@ -40,7 +40,8 @@ router.put("/:id", verifyToken, upload.single("image"), (req, res) => {
   const user = req.user;
   const subcategoryId = req.params.id;
   const { name, category_id } = req.body;
-  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+  const baseUrl = req.protocol + "://" + req.get("host");
+  const image_url = req.file ? `${baseUrl}/uploads/${req.file.filename}` : null;
 
   if (user.role !== "admin") {
     return res

@@ -1,33 +1,3 @@
-/* .adminCategory{
-    width: 100dvw;
-    height: 100dvh;
-    background: lightblue;
-}
-.adminCatNav{
-    width: 100%;
-    height: 15%;
-    background: lightgreen;
-}
-.adminCatBody{
-    position: relative;
-    background: orange;
-    width: 100%;
-    height: 100%;
-}
-
-.adminCatModal{
-    z-index: 1;
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-    background: lightcyan;
-}
-.catlist{
-    display: flex;
-    flex-wrap: wrap
-} */
 
 body {
     background: linear-gradient(145deg, #0a0a0a, #0f1e2e, #1a2a40);

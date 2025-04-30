@@ -89,9 +89,6 @@ const PlaceOrder = () => {
 
       if (response.data.message === "Order placed successfully") {
         console.log(response.data.message, "successfull");
-        console.log(response.data);
-
-        console.log(`/home/order-confirmation/${response.data.orderId}`);
         navigate(`/home/order-confirmation/${response.data.orderId}`);
       }
     } catch (err) {

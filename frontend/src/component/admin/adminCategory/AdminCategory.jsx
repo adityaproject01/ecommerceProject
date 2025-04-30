@@ -17,17 +17,18 @@ const AdminCategory = () => {
   const token = localStorage.getItem("token");
 
   // Fetch categories on mount
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/category", {
+        headers: { Authorization: token },
+      });
+      setCategoryDetails(response.data);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/category", {
-          headers: { Authorization: token },
-        });
-        setCategoryDetails(response.data);
-      } catch (error) {
-        console.log("error", error);
-      }
-    };
+   
 
     fetchCategories();
   }, [token]);
@@ -79,10 +80,7 @@ const AdminCategory = () => {
         }
       );
       setIsCatEditOpen(false);
-      const res = await axios.get("http://localhost:5000/api/category", {
-        headers: { Authorization: token },
-      });
-      setCategoryDetails(res.data);
+      fetchCategories()
     } catch (error) {
       console.log("catEditError", error);
     }
@@ -97,10 +95,7 @@ const AdminCategory = () => {
           Authorization: token,
         },
       });
-      const res = await axios.get("http://localhost:5000/api/category", {
-        headers: { Authorization: token },
-      });
-      setCategoryDetails(res.data);
+      fetchCategories()
     } catch (error) {
       console.log("error delete category", error);
     }

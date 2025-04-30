@@ -32,7 +32,7 @@ app.use("/api/order", orderRoutes); // Order routes
 app.use("/api/address", addressRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/category", categoryRoutes);
-app.use("/api/subcategory", subcategoryRoutes);
+app.use("/api/subcategories", subcategoryRoutes);
 app.use("/api/subsubcategory", subSubcategoryRoutes);
 app.use("/api/subsubsubcategory", subsubsubcategoryRoutes);
 app.use("/api/order-confirmation", orderConfirmationRoutes);

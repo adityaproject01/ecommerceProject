@@ -9,7 +9,7 @@ const Register = () => {
   const [registerPassword, setRegisterPassword] = useState("");
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
   const [registerRole, setRegisterRole] = useState("");
-const navigate=useNavigate()
+  const navigate = useNavigate();
   const handleRegisterClear = () => {
     setRegisterName("");
     setRegisterEmail("");
@@ -33,24 +33,28 @@ const navigate=useNavigate()
     };
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/signup", registerDetails);
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/signup",
+        registerDetails
+      );
       console.log("Successfully registered:", response.data);
       handleRegisterClear();
       setTimeout(() => {
         alert("Successfully Registered");
       }, 2000);
-      navigate("/")
-      
-
+      navigate("/");
     } catch (error) {
       console.error("Registration error:", error);
     }
   };
 
   return (
-    <div>
-      <p>Register</p>
+    <div className="registerbody">
       <div className="register">
+        <div className="reHedder">
+        <p>Register</p>
+        <button className="homeBtn">Home</button>
+        </div>
         <form onSubmit={handleRegister}>
           <label>Name</label>
           <input
@@ -90,7 +94,7 @@ const navigate=useNavigate()
             <option value="Seller">Seller</option>
           </select>
 
-          <button type="submit">Submit</button>
+          <button className="regSubBtn" type="submit">Submit</button>
         </form>
       </div>
     </div>
