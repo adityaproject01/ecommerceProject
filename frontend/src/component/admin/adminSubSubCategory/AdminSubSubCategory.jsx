@@ -2,119 +2,116 @@ import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import adminSubSubCatCss from "./adminSubSubCategory.module.css";
 import axios from "axios";
+
 const AdminSubSubCategory = () => {
   const navigate = useNavigate();
-  const [isSubCatEditOpen, setIsSubCatEditOpen] = useState(false);
-  const [isSetOpen, setIsSetOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [subCatId, setSubCatId] = useState("");
-  const [categoryMain, setCategoryMain] = useState("");
-  const [images, setImages] = useState("");
   const token = localStorage.getItem("token");
 
-  const [subSubCatEditName, setSubSubCatEditName] = useState();
+  const [isSubCatEditOpen, setIsSubCatEditOpen] = useState(false);
+  const [isSetOpen, setIsSetOpen] = useState(false);
 
-  const [subCatEditImg, setSubCatEditImg] = useState();
-  const [catGetName, setCatGetName] = useState();
-  const [getSubCatName, setGetSubCatName] = useState();
-  const [getSubSubCatName, setGetSubSubCatName] = useState();
-
-  const [editSubCategoryId, setEditSubCategoryId] = useState("");
-  // set details
+  const [name, setName] = useState("");
+  const [images, setImages] = useState(null);
+  const [categoryMain, setCategoryMain] = useState("");
   const [subcategoryId, setSubCategoryId] = useState("");
-  const [subCatSelRes, setSubCatSelRes] = useState([]);
-  //details fetch
+
   const [getCategoryDetails, setGetCategoryDetails] = useState([]);
   const [getSubCategoryDetails, setSubGetCategoryDetails] = useState([]);
   const [getSubSubCategoryDetails, setSubSubGetCategoryDetails] = useState([]);
+  const [subCatSelRes, setSubCatSelRes] = useState([]);
+
+  const [subSubCatId, setSubSubCatId] = useState("");
+  const [subSubCatEditName, setSubSubCatEditName] = useState("");
+  const [subCatEditImg, setSubCatEditImg] = useState(null);
+  const [editSubCatId, setEditSubCatId] = useState("");
+
   const fetchSubCategories = async () => {
     try {
-      const responsubsubsubcat = await axios.get(
-        "http://localhost:5000/api/subsubcategory"
-      );
-      const responseSubCat = await axios.get(
-        "http://localhost:5000/api/subcategories"
-      );
-      const responseCat = await axios.get(
-        "http://localhost:5000/api/category",
-        {
+      const [subSubRes, subCatRes, catRes] = await Promise.all([
+        axios.get("http://localhost:5000/api/subsubcategory"),
+        axios.get("http://localhost:5000/api/subcategories"),
+        axios.get("http://localhost:5000/api/category", {
           headers: { Authorization: token },
-        }
-      );
-
-      setGetCategoryDetails(responseCat.data);
-      setSubGetCategoryDetails(responseSubCat.data);
-      console.log(getSubSubCategoryDetails, "getSubSubCategoryDetails");
-      setSubSubGetCategoryDetails(responsubsubsubcat.data);
+        }),
+      ]);
+      setSubSubGetCategoryDetails(subSubRes.data);
+      setSubGetCategoryDetails(subCatRes.data);
+      setGetCategoryDetails(catRes.data);
     } catch (error) {
       console.log("Fetch category error", error);
     }
   };
+
   useEffect(() => {
-    if (categoryMain) {
-      handleSeletedSub(categoryMain);
-    }
     fetchSubCategories();
-  }, [token, categoryMain]);
-  // selected category
-  const handleSeletedSub = async (categoryMain) => {
+  }, [token]);
+
+  useEffect(() => {
+    if (categoryMain) handleSeletedSub(categoryMain);
+  }, [categoryMain]);
+
+  const handleSeletedSub = async (categoryId) => {
     try {
-      const CatId = parseInt(categoryMain);
-      const responseSelSubCat = await axios.get(
-        `http://localhost:5000/api/subcategories/category/${CatId}`,
+      const id = parseInt(categoryId);
+      const res = await axios.get(
+        `http://localhost:5000/api/subcategories/category/${id}`,
         {
           headers: { Authorization: token },
         }
       );
-      setSubCatSelRes(responseSelSubCat.data);
+      setSubCatSelRes(res.data);
     } catch (error) {
-      console.log("error select sub", error);
+      console.log("Subcategory fetch error", error);
     }
   };
-  //add subsubcat
+
   const handleSubSubCatDetails = async (e) => {
     e.preventDefault();
-    const subcategoryIdNum = parseInt(subcategoryId);
     const formData = new FormData();
     formData.append("name", name);
     formData.append("image", images);
-    formData.append("subcategory_id", subcategoryIdNum);
+    formData.append("subcategory_id", parseInt(subcategoryId));
+
     try {
-      await axios.post(
-        "http://localhost:5000/api/subsubcategory/add",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: token,
-          },
-        }
-      );
-      alert("Product added successfull");
+      await axios.post("http://localhost:5000/api/subsubcategory/add", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: token,
+        },
+      });
+      alert("Sub-sub-category added successfully");
       fetchSubCategories();
       closeModal();
     } catch (error) {
-      console.log("error add product", error);
+      console.log("Error adding sub-sub-category", error);
     }
   };
 
-  // subcat edit
-  const handleEditSubCat = async () => {
-    const finalCategoryId =
-      editSubCategoryId ||
-      getCategoryDetails.find((cat) => cat.name === catGetName)?.id;
+  const handleEditClick = (subCatId, subSubCatId) => {
+    const subCat = getSubCategoryDetails.find(sc => sc.subcategory_id === subCatId);
+    const subSubCat = getSubSubCategoryDetails.find(ssc => ssc.subsub_id === subSubCatId);
 
-    const catId = parseInt(finalCategoryId);
+    if (subCat && subSubCat) {
+      setEditSubCatId(subCat.subcategory_id);
+      setSubSubCatId(subSubCat.subsub_id);
+      setSubSubCatEditName(subSubCat.subsub_name);
+      setIsSubCatEditOpen(true);
+    }
+  };
+
+  const handleEditSubCat = async (e) => {
+    e.preventDefault();
+
     const formData = new FormData();
     formData.append("name", subSubCatEditName);
-    formData.append("category_id", catId);
+    formData.append("subcategory_id", editSubCatId);
     if (subCatEditImg) {
       formData.append("image", subCatEditImg);
     }
-    const subCatIdNum = parseInt(subCatId);
+
     try {
       await axios.put(
-        `http://localhost:5000/api/subcategories/${subCatIdNum}`,
+        `http://localhost:5000/api/subsubcategory/${subSubCatId}`,
         formData,
         {
           headers: {
@@ -125,55 +122,29 @@ const AdminSubSubCategory = () => {
       fetchSubCategories();
       setIsSubCatEditOpen(false);
     } catch (error) {
-      console.log("catEditError", error);
+      console.log("Edit error", error);
     }
   };
 
-  const handleEditClick = (id, subid) => {
-    const subCat = getSubCategoryDetails.find(
-      (item) => item.subcategory_id === id
-    );
-    const subSubCat = getSubSubCategoryDetails.find(
-      (item) => item.subsub_id === subid
-    );
-    console.log(getSubSubCategoryDetails, "subsub_id");
-    console.log(subCat, "subCat");
-    if (subCat) {
-      setSubCatId(id);
-
-      setSubSubCatEditName(subCat.subcategory_name);
-      setCatGetName(subCat.category_name);
-      setGetSubCatName(subCat.subcategory_name);
-      setGetSubSubCatName(subSubCat.subsub_name);
-      setSubCatEditImg(null);
-      setIsSubCatEditOpen(true);
-    }
-  };
-  // delete
-
-  const handleDeleteCat = async (subCatDelId) => {
-    const catDelIdNum = parseInt(subCatDelId);
+  const handleDeleteCat = async (id) => {
     try {
-      await axios.delete(
-        `http://localhost:5000/api/subcategories/${catDelIdNum}`,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
+      await axios.delete(`http://localhost:5000/api/subcategories/${id}`, {
+        headers: { Authorization: token },
+      });
       fetchSubCategories();
-      // setSuCategoryDetails(res.data);
     } catch (error) {
-      console.log("error delete category", error);
+      console.log("Delete error", error);
     }
   };
+
   const closeModal = () => {
     setIsSetOpen(false);
     setName("");
     setCategoryMain("");
-    setImages("");
+    setSubCategoryId("");
+    setImages(null);
   };
+
   const logoutButton = () => {
     localStorage.removeItem("token");
     navigate("/home");
@@ -181,12 +152,10 @@ const AdminSubSubCategory = () => {
 
   return (
     <div className={adminSubSubCatCss.adminContainer}>
+      {/* Navbar */}
       <div className={adminSubSubCatCss.glassNavbar}>
-        <button
-          className={adminSubSubCatCss.navBtn}
-          onClick={() => navigate("/admin")}
-        >
-          Home{" "}
+        <button className={adminSubSubCatCss.navBtn} onClick={() => navigate("/admin")}>
+          Home
         </button>
         <div className={adminSubSubCatCss.navTitle}>Welcome, Admin</div>
         <div style={{ display: "flex", gap: "1rem" }}>
@@ -204,30 +173,22 @@ const AdminSubSubCategory = () => {
           </button>
         </div>
       </div>
-      <h2 className={adminSubSubCatCss.glassHeader}>
-        Manage Sub-Sub-Categories
-      </h2>
 
+      <h2 className={adminSubSubCatCss.glassHeader}>Manage Sub-Sub-Categories</h2>
       <Outlet />
-      {isSetOpen ? (
-        <div className={adminSubSubCatCss.modalBackdrop}>
-          <div
-            className={`${adminSubSubCatCss.modalContainer} ${adminSubSubCatCss.glassCard}`}
-          >
-            <h3>Add Sub Sub Category</h3>
 
+      {/* Add Modal */}
+      {isSetOpen && (
+        <div className={adminSubSubCatCss.modalBackdrop}>
+          <div className={`${adminSubSubCatCss.modalContainer} ${adminSubSubCatCss.glassCard}`}>
+            <h3>Add Sub Sub Category</h3>
             <form onSubmit={handleSubSubCatDetails}>
               <label>Name</label>
-              <input
-                type="text"
-                onChange={(e) => {
-                  setName(e.target.value);
-                }}
-              />
+              <input type="text" onChange={(e) => setName(e.target.value)} />
 
               <label>Category</label>
-              <select onChange={(e) => setCategoryMain(e.target.value)}>
-                <option selected disabled>
+              <select onChange={(e) => setCategoryMain(e.target.value)} defaultValue="">
+                <option disabled value="">
                   Select Category
                 </option>
                 {getCategoryDetails.map((cat) => (
@@ -236,71 +197,54 @@ const AdminSubSubCategory = () => {
                   </option>
                 ))}
               </select>
-              <label>SubCategory</label>
 
-              <select onChange={(e) => setSubCategoryId(e.target.value)}>
-                <option selected disabled>
+              <label>SubCategory</label>
+              <select onChange={(e) => setSubCategoryId(e.target.value)} defaultValue="">
+                <option disabled value="">
                   Select Sub Category
                 </option>
-                {subCatSelRes?.map((subCatSel, index) => (
-                  <option key={index} value={subCatSel.subcategory_id}>
-                    {subCatSel.subcategory_name}
+                {subCatSelRes.map((sub) => (
+                  <option key={sub.subcategory_id} value={sub.subcategory_id}>
+                    {sub.subcategory_name}
                   </option>
                 ))}
               </select>
+
               <label>Image</label>
-              <input
-                onChange={(e) => {
-                  setImages(e.target.files[0]);
-                }}
-                type="file"
-              />
+              <input type="file" onChange={(e) => setImages(e.target.files[0])} />
 
               <button type="submit" className={adminSubSubCatCss.saveBtn}>
-                submit
+                Submit
               </button>
-              <button
-                type="button"
-                className={adminSubSubCatCss.cancelBtn}
-                onClick={() => {
-                  setIsSetOpen(false);
-                }}
-              >
+              <button type="button" className={adminSubSubCatCss.cancelBtn} onClick={closeModal}>
                 Close
               </button>
             </form>
           </div>
         </div>
-      ) : (
-        <></>
       )}
 
-      <div
-        className={`${adminSubSubCatCss.tableHeader} ${adminSubSubCatCss.glassRow}`}
-      >
+      {/* Table */}
+      <div className={`${adminSubSubCatCss.tableHeader} ${adminSubSubCatCss.glassRow}`}>
         <div>ID</div>
         <div>SubName</div>
         <div>Image</div>
         <div>Actions</div>
       </div>
-      {/* ftchsubcat */}
       {getSubSubCategoryDetails.map((item, index) => (
-        <div className={adminSubSubCatCss.glassRow} key={index}>
+        <div key={index} className={adminSubSubCatCss.glassRow}>
           <div>{index + 1}</div>
           <div>{item.subsub_name}</div>
-
           <div>
             <img
               src={`http://localhost:5000${item.image_url}`}
-              alt="loading"
+              alt="subsub"
               className={adminSubSubCatCss.rowImage}
             />
           </div>
           <div className={adminSubSubCatCss.catActions}>
             <button
-              onClick={() =>
-                handleEditClick(item.subcategory_id, item.subsub_id)
-              }
+              onClick={() => handleEditClick(item.subcategory_id, item.subsub_id)}
               className={adminSubSubCatCss.editBtn}
             >
               Edit
@@ -318,42 +262,17 @@ const AdminSubSubCategory = () => {
       {/* Edit Modal */}
       {isSubCatEditOpen && (
         <div className={adminSubSubCatCss.modalBackdrop}>
-          <div
-            className={`${adminSubSubCatCss.modalContainer} ${adminSubSubCatCss.glassCard}`}
-          >
+          <div className={`${adminSubSubCatCss.modalContainer} ${adminSubSubCatCss.glassCard}`}>
             <h3>Edit Sub-SubCategory</h3>
-            <form
-              onSubmit={(e) => {
-                handleEditSubCat();
-                e.preventDefault();
-              }}
-            >
-              <label> Category Name:</label>
-              <input
-                className={adminSubSubCatCss.selNone}
-                value={catGetName}
-                disabled
-              />
-
-              <label>Sub Category Name:</label>
-              <input
-                disabled
-                className={adminSubSubCatCss.selNone}
-                value={getSubCatName}
-                onChange={(e) => setEditSubCategoryId(e.target.value)}
-              />
-
-              <label>Sub Sub Category Name:</label>
+            <form onSubmit={handleEditSubCat}>
+              <label>Sub-Sub Category Name:</label>
               <input
                 type="text"
-                value={getSubSubCatName}
-                onChange={(e) => setGetSubSubCatName(e.target.value)}
+                value={subSubCatEditName}
+                onChange={(e) => setSubSubCatEditName(e.target.value)}
               />
               <label>New Image (optional):</label>
-              <input
-                type="file"
-                onChange={(e) => setSubCatEditImg(e.target.files[0])}
-              />
+              <input type="file" onChange={(e) => setSubCatEditImg(e.target.files[0])} />
               <div className={adminSubSubCatCss.modalActions}>
                 <button type="submit" className={adminSubSubCatCss.saveBtn}>
                   Save
@@ -361,9 +280,7 @@ const AdminSubSubCategory = () => {
                 <button
                   type="button"
                   className={adminSubSubCatCss.cancelBtn}
-                  onClick={() => {
-                    setIsSubCatEditOpen(false);
-                  }}
+                  onClick={() => setIsSubCatEditOpen(false)}
                 >
                   Cancel
                 </button>

@@ -20,30 +20,33 @@ const Register = () => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-
     if (registerPassword !== registerConfirmPassword) {
       alert("Passwords do not match!");
       return;
     }
+    
     const registerDetails = {
       name: registerName,
       email: registerEmail,
       password: registerPassword,
       role: registerRole.toLowerCase(),
     };
-
+    // console.log(registerName,registerEmail,registerPassword,registerRole)
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/signup",
         registerDetails
       );
+      console.log("dff")
       console.log("Successfully registered:", response.data);
       handleRegisterClear();
       setTimeout(() => {
         alert("Successfully Registered");
       }, 2000);
       navigate("/");
+      console.log("d")
     } catch (error) {
+      console.log("object")
       console.error("Registration error:", error);
     }
   };

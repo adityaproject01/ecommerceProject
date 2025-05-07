@@ -80,7 +80,7 @@ const Seller = () => {
 
   const fetchSubCategories = (categoryId) => {
     axios
-      .get(`http://localhost:5000/api/subcategory/category/${categoryId}`)
+      .get(`http://localhost:5000/api/subcategories/category/${categoryId}`)
       .then((res) => setGetSubCategoryDetails(res.data))
       .catch((err) => {
         console.error("Failed to fetch subcategories", err);

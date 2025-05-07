@@ -28,8 +28,6 @@ const AdminCategory = () => {
     }
   };
   useEffect(() => {
-   
-
     fetchCategories();
   }, [token]);
 
@@ -40,16 +38,12 @@ const AdminCategory = () => {
     formData.append("name", adminCatName);
     formData.append("image", adminCatImg);
     try {
-      await axios.post(
-        "http://localhost:5000/api/category/add",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: token,
-          },
-        }
-      );
+      await axios.post("http://localhost:5000/api/category/add", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: token,
+        },
+      });
       alert("Category is added");
       closeModal();
       // Refetch categories
@@ -80,7 +74,7 @@ const AdminCategory = () => {
         }
       );
       setIsCatEditOpen(false);
-      fetchCategories()
+      fetchCategories();
     } catch (error) {
       console.log("catEditError", error);
     }
@@ -95,7 +89,7 @@ const AdminCategory = () => {
           Authorization: token,
         },
       });
-      fetchCategories()
+      fetchCategories();
     } catch (error) {
       console.log("error delete category", error);
     }
@@ -156,32 +150,84 @@ const AdminCategory = () => {
 
       <h2 className={adminCatCss.glassHeader}>Manage Categories</h2>
 
-      <Outlet />
+      {/* <Outlet />
+    
+        
+            
+
+            <form onSubmit={handleSubCatDetails}>
+              <label>Name</label>
+              <input
+                type="text"
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+              />
+
+              <label>Category</label>
+              <select onChange={(e) => setCategoryMain(e.target.value)}>
+                <option selected disabled>
+                  Select Category
+                </option>
+                {getCategoryDetails.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+
+              <label></label>
+              <input
+                onChange={(e) => {
+                  setImages(e.target.files[0]);
+                }}
+                type="file"
+              />
+
+              
+              <button
+              type="button"
+                className={adminSubCatCss.cancelBtn}
+                onClick={() => {
+                  setIsSetOpen(false);
+                }}
+              >
+                Close
+              </button>
+            </form> */}
 
       {/* Add Category Modal */}
       {isModalOpen && (
-        <div className="adminCatModal">
-          <button onClick={() => setIsModalOpen(false)}>Close</button>
-          <div className="adminCatModalBody">
-            <form onSubmit={handleAdminCategory}>
-              <div className="adminCatInput">
+        <div className={adminCatCss.modalBackdrop}>
+          <div
+            className={`${adminCatCss.modalContainer} ${adminCatCss.glassCard}`}
+          >
+            <div className="adminCatModalBody">
+              <form onSubmit={handleAdminCategory}>
+                <h3>Edit Sub Category</h3>
                 <label>Name</label>
                 <input
                   type="text"
                   onChange={(e) => setAdminCatName(e.target.value)}
                 />
-              </div>
-              <div className="adminCatInput">
+
                 <label>Image</label>
                 <input
                   type="file"
                   onChange={(e) => setAdminCatImg(e.target.files[0])}
                 />
-              </div>
-              <div className="adminCatInput">
-                <button type="submit">Submit</button>
-              </div>
-            </form>
+
+                <button type="submit" className={adminCatCss.saveBtn}>
+                  submit
+                </button>
+                <button
+                  className={adminCatCss.cancelBtn}
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Close
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       )}

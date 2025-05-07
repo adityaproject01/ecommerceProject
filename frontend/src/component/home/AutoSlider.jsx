@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import homecss from './home.module.css'; 
-import banner1 from "../../images/banner/3826413.jpg";
-import banner2 from "../../images/banner/4685339.jpg";
-import banner3 from "../../images/banner/6260330.jpg";
-import banner4 from "../../images/banner/banner5.png";
-import banner5 from "../../images/banner/banner6.jpg";
+import banner1 from "../../images/banner/bg11.png";
+import banner2 from "../../images/banner/bg12.png";
+import banner3 from "../../images/banner/bg16.jpg";
+import banner4 from "../../images/banner/8852145.jpg";
+import banner5 from "../../images/banner/8852028.jpg";
 
 const images = [banner1, banner2, banner3, banner4,banner5];
 

@@ -30,8 +30,10 @@ const Home = ({ setViewMoreDetails }) => {
 
   const handleCategoryClick = async (id) => {
     try {
-      const res = await axios.get(`${baseUrl}/api/subcategories/category/${id}`);
-      console.log("object",res.data)
+      const res = await axios.get(
+        `${baseUrl}/api/subcategories/category/${id}`
+      );
+      console.log("object", res.data);
       setSubCategories(res.data);
       setShowSubcategory(true);
       setShowSubSubcategory(false);
@@ -91,7 +93,6 @@ const Home = ({ setViewMoreDetails }) => {
             <p className={homecss.bannerTitle1}>Welcome to online shopping</p>
           </div>
         </div>
-
         <div className={homecss.homeBanner}>
           <AutoSlider />
         </div>
@@ -113,11 +114,14 @@ const Home = ({ setViewMoreDetails }) => {
               ))}
 
             {/* Subcategories */}
-            {console.log(showSubSubcategory,"showSubSubcategory")}
+            {console.log(showSubSubcategory, "showSubSubcategory")}
             {showSubcategory && !showSubSubcategory && (
               <>
-                <button onClick={handleBackToCategories}>
-                  ← Back to Categories
+                <button
+                  className={homecss.backButton}
+                  onClick={handleBackToCategories}
+                >
+                  ← Back
                 </button>
                 {subCategories.map((item, index) => (
                   <div key={index} className={homecss.categoryCard}>
@@ -140,8 +144,11 @@ const Home = ({ setViewMoreDetails }) => {
             {/* Sub-subcategories */}
             {showSubSubcategory && !showSubSubSubcategory && (
               <>
-                <button onClick={handleBackToSubcategories}>
-                  ← Back to Subcategories
+                <button
+                  className={homecss.backButton}
+                  onClick={handleBackToSubcategories}
+                >
+                  ← Back
                 </button>
                 {subSubCategories.length > 0 ? (
                   subSubCategories.map((item, index) => (
@@ -168,8 +175,11 @@ const Home = ({ setViewMoreDetails }) => {
             {/* Sub-sub-subcategories */}
             {showSubSubSubcategory && (
               <>
-                <button onClick={handleBackToSubSubcategories}>
-                  ← Back to Sub-subcategories
+                <button
+                  className={homecss.backButton}
+                  onClick={handleBackToSubSubcategories}
+                >
+                  ← Back
                 </button>
                 {subSubSubCategories.length > 0 ? (
                   subSubSubCategories.map((item, index) => (
@@ -192,10 +202,11 @@ const Home = ({ setViewMoreDetails }) => {
 
         {/* Products Section */}
         <div className={homecss.products}>
-          <div className={homecss.subProducts}>
             {products.map((item, index) => (
-              <div key={index} className={homecss.productCard}>
+          <div key={index} className={homecss.subProducts}>
+           
                 <div className={homecss.productImageCard}>
+                  {console.log(item, "item")}
                   <img
                     src={item.image_url}
                     alt=""
@@ -203,7 +214,9 @@ const Home = ({ setViewMoreDetails }) => {
                   />
                 </div>
                 <p className={homecss.productDetailsName}>{item.name}</p>
-                <p>Price {item.price}</p>
+                <div className={homecss.productCardPrice}>
+
+                <p className={homecss.price}>Price {item.price}</p>
                 {setViewMoreDetails(item)}
                 <button
                   className={homecss.viewMorebtn}
@@ -214,48 +227,51 @@ const Home = ({ setViewMoreDetails }) => {
                   ViewMore
                 </button>
               </div>
+      
+            </div>
             ))}
-           
-          </div>
-          <nav aria-label="pagination">
-              <ul className={homecss.pagination}>
-                <li>
-                  <div className={homecss.paginationLink}>
-                    <span aria-hidden="true">&laquo;</span>
-                    <span className={homecss.visuallyhidden}>previous set of pages</span>
-                  </div>
-                </li>
-                <li>
-                  <div className={homecss.paginationLink}>
-                    <span className={homecss.visuallyhidden}>page </span>1
-                  </div>
-                </li>
-                <li>
+          {/* <nav aria-label="pagination">
+            <ul className={homecss.pagination}>
+              <li>
                 <div className={homecss.paginationLink}>
-
-                    <span className={homecss.visuallyhidden}>page </span>2
-                  </div>
-                </li>
-                <li>
-                  <div className={homecss.paginationLink}>
-                    {" "}
-                    <span className={homecss.visuallyhidden}>page </span>3{" "}
-                  </div>
-                </li>
-                <li>
-                  <div className={homecss.paginationLink}>
-                    {" "}
-                    <span className={homecss.visuallyhidden}>page </span>4{" "}
-                  </div>
-                </li>
-                <li>
-                  <div className={homecss.paginationLink}>
-                    <span className={homecss.visuallyhidden}>next set of pages</span>
-                    <span aria-hidden="true">&raquo;</span>
-                  </div>
-                </li>
-              </ul>
-            </nav>
+                  <span aria-hidden="true">&laquo;</span>
+                  <span className={homecss.visuallyhidden}>
+                    previous set of pages
+                  </span>
+                </div>
+              </li>
+              <li>
+                <div className={homecss.paginationLink}>
+                  <span className={homecss.visuallyhidden}>page </span>1
+                </div>
+              </li>
+              <li>
+                <div className={homecss.paginationLink}>
+                  <span className={homecss.visuallyhidden}>page </span>2
+                </div>
+              </li>
+              <li>
+                <div className={homecss.paginationLink}>
+                  {" "}
+                  <span className={homecss.visuallyhidden}>page </span>3{" "}
+                </div>
+              </li>
+              <li>
+                <div className={homecss.paginationLink}>
+                  {" "}
+                  <span className={homecss.visuallyhidden}>page </span>4{" "}
+                </div>
+              </li>
+              <li>
+                <div className={homecss.paginationLink}>
+                  <span className={homecss.visuallyhidden}>
+                    next set of pages
+                  </span>
+                  <span aria-hidden="true">&raquo;</span>
+                </div>
+              </li>
+            </ul>
+          </nav> */}
         </div>
       </div>
     </div>

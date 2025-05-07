@@ -8,9 +8,6 @@ router.get("/:orderId", verifyToken, async (req, res) => {
   const user = req.user; // Retrieved user info from JWT token
   const { orderId } = req.params; // Extracting orderId from URL params
 
-  console.log("🔑 User from token:", user);
-  console.log("📦 Fetching order ID:", orderId);
-
   const sql = "SELECT * FROM orders WHERE id = ?";
   db.query(sql, [orderId], (err, orderResults) => {
     if (err) return res.status(500).json({ message: err.message });
