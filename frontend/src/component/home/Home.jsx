@@ -33,7 +33,6 @@ const Home = ({ setViewMoreDetails }) => {
       const res = await axios.get(
         `${baseUrl}/api/subcategories/category/${id}`
       );
-      console.log("object", res.data);
       setSubCategories(res.data);
       setShowSubcategory(true);
       setShowSubSubcategory(false);
@@ -66,9 +65,18 @@ const Home = ({ setViewMoreDetails }) => {
     } catch (err) {
       console.log("Sub-sub-subcategory fetch failed:", err);
     }
-    console.log(subSubCatId, "subSubSubCategories");
-  };
 
+  };
+  const handleUserVm = (itemId) => {
+    const selectedItem = products.find((product) => product.id === itemId);
+    
+    if (selectedItem) {
+
+      setViewMoreDetails(selectedItem); 
+      navigate("/home/viewmore");
+    }
+  };
+  
   // Navigation handlers
   const handleBackToCategories = () => {
     setShowSubcategory(false);
@@ -114,7 +122,7 @@ const Home = ({ setViewMoreDetails }) => {
               ))}
 
             {/* Subcategories */}
-            {console.log(showSubSubcategory, "showSubSubcategory")}
+      
             {showSubcategory && !showSubSubcategory && (
               <>
                 <button
@@ -206,7 +214,7 @@ const Home = ({ setViewMoreDetails }) => {
           <div key={index} className={homecss.subProducts}>
            
                 <div className={homecss.productImageCard}>
-                  {console.log(item, "item")}
+      
                   <img
                     src={item.image_url}
                     alt=""
@@ -217,11 +225,11 @@ const Home = ({ setViewMoreDetails }) => {
                 <div className={homecss.productCardPrice}>
 
                 <p className={homecss.price}>Price {item.price}</p>
-                {setViewMoreDetails(item)}
+               
                 <button
                   className={homecss.viewMorebtn}
                   onClick={() => {
-                    navigate("/home/viewmore");
+                    handleUserVm(item.id)
                   }}
                 >
                   ViewMore
