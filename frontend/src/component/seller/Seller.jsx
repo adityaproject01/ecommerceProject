@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
-import "./seller.css";
+import sellerCss from "./seller.module.css"; // import CSS module
+
 import axios from "axios";
 import editImg from "../../images/banner/edit-button_7124470.png";
 import deleteImg from "../../images/banner/delete1.png";
@@ -12,12 +13,15 @@ const Seller = () => {
   const [getSubCategoryDetails, setGetSubCategoryDetails] = useState([]);
   const [getSubSubCategoryDetails, setGetSubSubCategoryDetails] = useState([]);
   const [getSubSubSubCategoryDetails, setGetSubSubSubCategoryDetails] = useState([]);
-
+  const totalOrders = productDetails.length;
+  const totalQuantity = productDetails.reduce((sum, item) => sum + Number(item.quantity), 0);
+  
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState(null);
 
   const [productName, setProductName] = useState("");
   const [productPrice, setProductPrice] = useState("");
+  const [productQuantity, setProductQuantity] = useState("");
   const [productCategory, setProductCategory] = useState("");
   const [productSubCategory, setProductSubCategory] = useState("");
   const [productSubSubCategory, setProductSubSubCategory] = useState("");
@@ -34,27 +38,18 @@ const Seller = () => {
   }, []);
 
   useEffect(() => {
-    if (productCategory) {
-      fetchSubCategories(productCategory);
-    } else {
-      setGetSubCategoryDetails([]);
-    }
+    if (productCategory) fetchSubCategories(productCategory);
+    else setGetSubCategoryDetails([]);
   }, [productCategory]);
 
   useEffect(() => {
-    if (productSubCategory) {
-      fetchSubSubCategories(productSubCategory);
-    } else {
-      setGetSubSubCategoryDetails([]);
-    }
+    if (productSubCategory) fetchSubSubCategories(productSubCategory);
+    else setGetSubSubCategoryDetails([]);
   }, [productSubCategory]);
 
   useEffect(() => {
-    if (productSubSubCategory) {
-      fetchSubSubSubCategories(productSubSubCategory);
-    } else {
-      setGetSubSubSubCategoryDetails([]);
-    }
+    if (productSubSubCategory) fetchSubSubSubCategories(productSubSubCategory);
+    else setGetSubSubSubCategoryDetails([]);
   }, [productSubSubCategory]);
 
   const logoutButton = () => {
@@ -119,9 +114,15 @@ const Seller = () => {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
+    if (!productSubSubSubCategory) {
+      alert("Please select a SubSubSubCategory.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("name", productName);
     formData.append("price", productPrice);
+    formData.append("quantity", productQuantity);
     formData.append("sub_sub_subcategory_id", productSubSubSubCategory);
     formData.append("description", productDescription);
     formData.append("image", productImage);
@@ -142,10 +143,16 @@ const Seller = () => {
 
   const handlEditProduct = async (e, productId) => {
     e.preventDefault();
+    if (!productSubSubSubCategory) {
+      alert("Please select a SubSubSubCategory.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("name", productName);
     formData.append("price", productPrice);
-    formData.append("category_id", productCategory);
+    formData.append("quantity", productQuantity);
+    formData.append("sub_sub_subcategory_id", productSubSubSubCategory);
     formData.append("description", productDescription);
     if (productImage) formData.append("image", productImage);
 
@@ -169,6 +176,7 @@ const Seller = () => {
     setCurrentEditId(null);
     setProductName("");
     setProductPrice("");
+    setProductQuantity("");
     setProductCategory("");
     setProductSubCategory("");
     setProductSubSubCategory("");
@@ -178,35 +186,39 @@ const Seller = () => {
   };
 
   return (
-    <div className="seller">
-      <div className="sellerNav">
+    <div className={sellerCss.seller}>
+      <div className={sellerCss.sellerNav}>
         <button onClick={() => navigate("/seller/product")}>Product</button>
         <button onClick={() => setIsModalOpen(true)}>Add Product</button>
         <button onClick={logoutButton}>Logout</button>
       </div>
 
-      <div className="sellerBody">
-        <div className="sellerSubBody">
+      <div className={sellerCss.sellerBody}>
+        <div className={sellerCss.sellerSubBody}>
           <Outlet />
 
           {isModalOpen && (
-            <div className="overlay">
-              <div className="modal drop1">
-                <div className="modalNav">
+            <div className={sellerCss.overlay}>
+              <div className={sellerCss.modal}>
+                <div className={sellerCss.modalNav}>
                   <h2>{isEditing ? "Edit Product" : "Add Product"}</h2>
                   <button onClick={closeModal}>Close</button>
                 </div>
-                <div className="productForm">
+                <div className={sellerCss.productForm}>
                   <form onSubmit={(e) => isEditing ? handlEditProduct(e, currentEditId) : handleAddProduct(e)}>
-                    <div className="productFiled">
+                    <div className={sellerCss.productField}>
                       <label>Name</label>
                       <input value={productName} onChange={(e) => setProductName(e.target.value)} />
                     </div>
-                    <div className="productFiled">
+                    <div className={sellerCss.productField}>
                       <label>Price</label>
                       <input type="number" value={productPrice} onChange={(e) => setProductPrice(e.target.value)} />
                     </div>
-                    <div className="productFiled">
+                    <div className={sellerCss.productField}>
+                      <label>Quantity</label>
+                      <input type="number" value={productQuantity} onChange={(e) => setProductQuantity(e.target.value)} />
+                    </div>
+                    <div className={sellerCss.productField}>
                       <label>Category</label>
                       <select value={productCategory} onChange={(e) => setProductCategory(e.target.value)}>
                         <option value="">Select Category</option>
@@ -215,7 +227,7 @@ const Seller = () => {
                         ))}
                       </select>
                     </div>
-                    <div className="productFiled">
+                    <div className={sellerCss.productField}>
                       <label>SubCategory</label>
                       <select value={productSubCategory} onChange={(e) => setProductSubCategory(e.target.value)}>
                         <option value="">Select SubCategory</option>
@@ -224,7 +236,7 @@ const Seller = () => {
                         ))}
                       </select>
                     </div>
-                    <div className="productFiled">
+                    <div className={sellerCss.productField}>
                       <label>SubSubCategory</label>
                       <select value={productSubSubCategory} onChange={(e) => setProductSubSubCategory(e.target.value)}>
                         <option value="">Select SubSubCategory</option>
@@ -233,7 +245,7 @@ const Seller = () => {
                         ))}
                       </select>
                     </div>
-                    <div className="productFiled">
+                    <div className={sellerCss.productField}>
                       <label>SubSubSubCategory</label>
                       <select value={productSubSubSubCategory} onChange={(e) => setProductSubSubSubCategory(e.target.value)}>
                         <option value="">Select SubSubSubCategory</option>
@@ -242,15 +254,15 @@ const Seller = () => {
                         ))}
                       </select>
                     </div>
-                    <div className="productFiled">
+                    <div className={sellerCss.productField}>
                       <label>Image</label>
                       <input type="file" onChange={(e) => setProductImage(e.target.files[0])} />
                     </div>
-                    <div className="productFiled">
+                    <div className={sellerCss.productField}>
                       <label>Description</label>
                       <input value={productDescription} onChange={(e) => setProductDescription(e.target.value)} />
                     </div>
-                    <div className="productFiled">
+                    <div className={sellerCss.productField}>
                       <button type="submit">{isEditing ? "Update" : "Submit"}</button>
                     </div>
                   </form>
@@ -258,47 +270,51 @@ const Seller = () => {
               </div>
             </div>
           )}
+<div className={sellerCss.glassCardSummary}>
+  <h2>Dashboard Summary</h2>
+  <div className={sellerCss.statsGrid}>
+    <div className={sellerCss.statBox}>
+      <h3>Total Orders</h3>
+      <p>{totalOrders}</p>
+    </div>
+    <div className={sellerCss.statBox}>
+      <h3>Total Quantity</h3>
+      <p>{totalQuantity}</p>
+    </div>
+    <div className={sellerCss.statBox}>
+      <h3>Welcome Back!</h3>
+      <p>Check your latest inventory updates below.</p>
+    </div>
+  </div>
+</div>
 
-          <div className="sellerGlassCard">
-            <div className="product">
-              <div className="productDetails">SlNo</div>
-              <div className="productDetails">Name</div>
-              <div className="productDetails">Price</div>
-              <div className="productDetails">Category</div>
-              <div className="productDetails">Image</div>
-              <div className="productDetails">Description</div>
-              <div className="productDetails">Details</div>
+          <div className={sellerCss.sellerGlassCard}>
+            <div className={sellerCss.product}>
+              <div className={sellerCss.productDetails}>SlNo</div>
+              <div className={sellerCss.productDetails}>Name</div>
+              <div className={sellerCss.productDetails}>Price</div>
+              <div className={sellerCss.productDetails}>Quantity</div>
+              <div className={sellerCss.productDetails}>Image</div>
+              <div className={sellerCss.productDetails}>Description</div>
+              <div className={sellerCss.productDetails}>Actions</div>
             </div>
 
             {productDetails.map((product, index) => (
-              <div className="product" key={index}>
-                <p className="productDetails">{index + 1}</p>
-                <p className="productDetails">{product.name}</p>
-                <p className="productDetails">{product.price}</p>
-               
-                <p className="productDetails">{product.name}</p>
-                <p className="productDetails">
+              <div className={sellerCss.product} key={index}>
+                <p className={sellerCss.productDetails}>{index + 1}</p>
+                <p className={sellerCss.productDetails}>{product.name}</p>
+                <p className={sellerCss.productDetails}>{product.price}</p>
+                <p className={sellerCss.productDetails}>{product.quantity}</p>
+                <p className={sellerCss.productDetails}>
                   <img src={product.image_url} alt="product" height="50" />
                 </p>
-                <p className="productDetailsDes">{product.description}</p>
-                <p className="productDetails">
-                  <button className="button" onClick={() => {
-                    setIsModalOpen(true);
-                    setIsEditing(true);
-                    setCurrentEditId(product.id);
-                    setProductName(product.name);
-                    setProductPrice(product.price);
-                    setProductCategory(product.category_id);
-                    setProductSubCategory(product.subcategory_id);
-                    setProductSubSubCategory(product.sub_subcategory_id);
-                    setProductSubSubSubCategory(product.sub_sub_subcategory_id || "");
-                    setProductDescription(product.description);
-                    setProductImage(null);
-                  }}>
-                    <img src={editImg} alt="Edit" />
+                <p className={sellerCss.productDetailsDescription}>{product.description}</p>
+                <p className={sellerCss.productDetails}>
+                  <button className={sellerCss.actionButton} onClick={() => { setIsModalOpen(true); setIsEditing(true); setCurrentEditId(product.id); }}>
+                    <img src={editImg} alt="edit" />
                   </button>
-                  <button className="button" onClick={() => productDelete(product.id)}>
-                    <img src={deleteImg} alt="Delete" />
+                  <button className={sellerCss.actionButton} onClick={() => productDelete(product.id)}>
+                    <img src={deleteImg} alt="delete" />
                   </button>
                 </p>
               </div>

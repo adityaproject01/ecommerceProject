@@ -1,6 +1,7 @@
+import React from "react";
+import viewCss from "./view.module.css";
 import axios from "axios";
-import "./viewMore.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, } from "react-router-dom";
 
 const ViewMore = ({ ViewMoreDetails }) => {
   const navigate = useNavigate();
@@ -11,9 +12,9 @@ const ViewMore = ({ ViewMoreDetails }) => {
     navigate("/");
   };
 
-  async function handleAddCart(ViewMoreDetails) {
+  async function handleAddCart(product) {
     const cartGetItem = {
-      product_id: ViewMoreDetails.id,
+      product_id: product.id,
       quantity: 1,
     };
 
@@ -28,7 +29,6 @@ const ViewMore = ({ ViewMoreDetails }) => {
           },
         }
       );
-
       console.log("Cart Add Response:", response.data);
       navigate("/home/cart");
     } catch (error) {
@@ -37,35 +37,34 @@ const ViewMore = ({ ViewMoreDetails }) => {
   }
 
   return (
-    <div className="home">
-      <div className="homeBackground">
-        <div className="homeHeadderBody">
-          <div className="homeHeadder">
-            <p className="bannerTitle1">Welcome to online shopping</p>
-          </div>
-          <button onClick={logoutButton}>Logout</button>
+    <div className={viewCss.pageWrapper}>
+      
+      <header className={viewCss.header}>
+        <h1 className={viewCss.title}>Product Details</h1>
+        <button className={viewCss.logoutBtn} onClick={logoutButton}>Logout</button>
+      </header>
+
+      <section className={viewCss.productPanel}>
+        <div className={viewCss.imageWrapper}>
+          <img
+            src={ViewMoreDetails.image_url}
+            alt={ViewMoreDetails.name}
+            className={viewCss.productImage}
+          />
         </div>
 
-        <div className="products">
-          <div className="subProducts">
-            <div className="productCard">
-              <img
-                src={ViewMoreDetails.image_url}
-                alt=""
-                className="productImage"
-              />
-              <p className="categoryDetails">{ViewMoreDetails.name}</p>
-              <p className="categoryDetails">{ViewMoreDetails.description}</p>
-              <p>{ViewMoreDetails.price}</p>
-              <button
-                onClick={() => handleAddCart(ViewMoreDetails)}
-              >
-                AddToCart
-              </button>
-            </div>
-          </div>
+        <div className={viewCss.infoWrapper}>
+          <h2 className={viewCss.productName}>{ViewMoreDetails.name}</h2>
+          <p className={viewCss.description}>{ViewMoreDetails.description}</p>
+          <p className={viewCss.price}>Price {ViewMoreDetails.price}</p>
+          <button
+            className={viewCss.cartButton}
+            onClick={() => handleAddCart(ViewMoreDetails)}
+          >
+            Add to Cart
+          </button>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

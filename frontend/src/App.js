@@ -17,12 +17,18 @@ import PlaceOrder from "./component/placeOrder/PlaceOrder";
 import OrderConfirmation from "./component/orderConfirmation/OrderConfirmation";
 import OrderHistory from "./component/orderHistory/OrderHistory";
 import AdminSubSubSubCategory from "./component/admin/adminSubSubSubCategory/AdminSubSubSubCategory";
+import axios from "axios";
+
 function App() {
   const navigate = useNavigate();
   const [ViewMoreDetails, setViewMoreDetails] = useState([]);
+  const [totalCartCount, setTotalCartCount] = useState(0);
+
+  // Session expiry
   useEffect(() => {
     const interval = setInterval(() => {
       const token = localStorage.getItem("token");
+
       if (token) {
         localStorage.removeItem("token");
         localStorage.removeItem("role");
@@ -33,6 +39,26 @@ function App() {
 
     return () => clearInterval(interval);
   }, [navigate]);
+
+  // Fetch cart count on load
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      axios
+        .get("http://localhost:5000/api/cart", {
+          headers: { Authorization: token },
+        })
+        .then((res) => {
+          setTotalCartCount(res.data.length || 0);
+          console.log("Updated totalCartCount in App:", res.data.length);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch cart count in App:", err);
+        });
+    }
+  }, []);
+
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
@@ -41,17 +67,25 @@ function App() {
         path="/home"
         element={
           <ProtectedRoute
-            element={<Home setViewMoreDetails={setViewMoreDetails} />}
+            element={
+              <Home
+                totalCartCount={totalCartCount}
+                setViewMoreDetails={setViewMoreDetails}
+              />
+            }
             allowedRoles={["customer"]}
           />
         }
       />
       <Route
         path="/home/viewmore"
-        element={<ViewMore ViewMoreDetails={ViewMoreDetails} />}
-        allowedRoles={["customer"]}
+        element={
+          <ProtectedRoute
+            element={<ViewMore ViewMoreDetails={ViewMoreDetails} />}
+            allowedRoles={["customer"]}
+          />
+        }
       />
-
       <Route
         path="/home/place-order"
         element={<PlaceOrder />}
@@ -71,23 +105,24 @@ function App() {
         element={<OrderHistory />}
         allowedRoles={["customer", "seller", "admin"]}
       />
-      <Route path="/home/cart" element={<Cart />} allowedRoles={["customer"]} />
+      <Route
+        path="/home/cart"
+        element={<Cart setTotalCartCount={setTotalCartCount} />}
+        allowedRoles={["customer"]}
+      />
       <Route
         path="/seller"
         element={
           <ProtectedRoute element={<Seller />} allowedRoles={["seller"]} />
         }
       />
-
       <Route
         path="/seller/product"
         element={
           <ProtectedRoute element={<Product />} allowedRoles={["seller"]} />
         }
       />
-
       <Route path="/register" element={<Register />} />
-
       <Route path="*" element={<Navigate to="/" />} />
 
       <Route
@@ -105,7 +140,6 @@ function App() {
           />
         }
       />
-
       <Route
         path="/admin/adminsubcategory"
         element={

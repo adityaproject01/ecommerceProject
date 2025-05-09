@@ -56,7 +56,7 @@ const Register = () => {
       <div className="register">
         <div className="reHedder">
         <p>Register</p>
-        <button className="homeBtn">Home</button>
+        <button onClick={()=>{navigate("/home")}} className="homeBtn">Home</button>
         </div>
         <form onSubmit={handleRegister}>
           <label>Name</label>

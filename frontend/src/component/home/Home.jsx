@@ -3,8 +3,10 @@ import homecss from "./home.module.css";
 import AutoSlider from "./AutoSlider";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import cartIocn from "../../images/banner/carticon1.png";
+const Home = ({ setViewMoreDetails, totalCartCount }) => {
+  const token = localStorage.getItem("token");
 
-const Home = ({ setViewMoreDetails }) => {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
@@ -19,6 +21,7 @@ const Home = ({ setViewMoreDetails }) => {
   const baseUrl = "http://localhost:5000";
 
   useEffect(() => {
+    
     axios.get(`${baseUrl}/api/products/`).then((res) => {
       setProducts(res.data.products);
     });
@@ -27,7 +30,6 @@ const Home = ({ setViewMoreDetails }) => {
       setCategory(res.data);
     });
   }, []);
-
   const handleCategoryClick = async (id) => {
     try {
       const res = await axios.get(
@@ -65,25 +67,26 @@ const Home = ({ setViewMoreDetails }) => {
     } catch (err) {
       console.log("Sub-sub-subcategory fetch failed:", err);
     }
-
   };
   const handleUserVm = (itemId) => {
     const selectedItem = products.find((product) => product.id === itemId);
-    
-    if (selectedItem) {
 
-      setViewMoreDetails(selectedItem); 
+    if (selectedItem) {
+      setViewMoreDetails(selectedItem);
       navigate("/home/viewmore");
     }
   };
-  
+
   // Navigation handlers
   const handleBackToCategories = () => {
     setShowSubcategory(false);
     setShowSubSubcategory(false);
     setShowSubSubSubcategory(false);
   };
-
+  const logoutButton = () => {
+    localStorage.removeItem("token");
+    navigate("/home");
+  };
   const handleBackToSubcategories = () => {
     setShowSubSubcategory(false);
     setShowSubSubSubcategory(false);
@@ -98,7 +101,25 @@ const Home = ({ setViewMoreDetails }) => {
       <div className={homecss.homeBackground}>
         <div className={homecss.homeHeadderBody}>
           <div className={homecss.homeHeadder}>
-            <p className={homecss.bannerTitle1}>Welcome to online shopping</p>
+            <div className={homecss.homeHeaderLeft}>
+            <p >Welcome to online shopping</p>
+
+            </div>
+            <div className={homecss.homeHeaderRight}>
+              <div  className={homecss.cartImg}>
+
+            <img onClick={()=>{navigate("/home/cart")}}src={cartIocn}width={"70px"} />
+            <p className={homecss.cartCnt}>{totalCartCount}</p>
+              </div>
+            <button className={homecss.Logout} onClick={logoutButton}>Logout</button>
+            </div>
+            {/* <div className={homecss.bannerTitle1}>
+
+            </div>
+            <div className={homecss.cartIcon}>
+
+            
+            </div> */}
           </div>
         </div>
         <div className={homecss.homeBanner}>
@@ -117,12 +138,13 @@ const Home = ({ setViewMoreDetails }) => {
                     alt=""
                     className={homecss.categoryImage}
                   />
+                 
                   <p className={homecss.categoryDetails}>{item.name}</p>
                 </div>
               ))}
 
             {/* Subcategories */}
-      
+
             {showSubcategory && !showSubSubcategory && (
               <>
                 <button
@@ -210,34 +232,32 @@ const Home = ({ setViewMoreDetails }) => {
 
         {/* Products Section */}
         <div className={homecss.products}>
-            {products.map((item, index) => (
-          <div key={index} className={homecss.subProducts}>
-           
-                <div className={homecss.productImageCard}>
-      
-                  <img
-                    src={item.image_url}
-                    alt=""
-                    className={homecss.productImage}
-                  />
-                </div>
-                <p className={homecss.productDetailsName}>{item.name}</p>
-                <div className={homecss.productCardPrice}>
+          {products.map((item, index) => (
+            <div key={index} className={homecss.subProducts}>
+              <div className={homecss.productImageCard}>
+                <img
+                  src={item.image_url}
+                  alt=""
+                  className={homecss.productImage}
+                />
+              </div>
+              <p className={homecss.productDetailsName}>{item.name}</p>
+              <div className={homecss.productCardPrice}>
+                <b>
+                  <p className={homecss.price}>Price {item.price}</p>
+                </b>
 
-                <p className={homecss.price}>Price {item.price}</p>
-               
                 <button
                   className={homecss.viewMorebtn}
                   onClick={() => {
-                    handleUserVm(item.id)
+                    handleUserVm(item.id);
                   }}
                 >
                   ViewMore
                 </button>
               </div>
-      
             </div>
-            ))}
+          ))}
           {/* <nav aria-label="pagination">
             <ul className={homecss.pagination}>
               <li>

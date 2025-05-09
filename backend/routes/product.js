@@ -24,7 +24,7 @@ router.post("/add", verifyToken, upload.single("image"), async (req, res) => {
     return res.status(403).json({ message: "Only sellers can add products" });
   }
 
-  const { name, description, sub_sub_subcategory_id } = req.body;
+  const { name, description, sub_sub_subcategory_id, quantity } = req.body;
   const baseUrl = req.protocol + "://" + req.get("host");
   const imageFilename = req.file
     ? `${baseUrl}/uploads/${req.file.filename}`
@@ -34,21 +34,31 @@ router.post("/add", verifyToken, upload.single("image"), async (req, res) => {
     sub_sub_subcategory_id && sub_sub_subcategory_id.trim() !== ""
       ? parseInt(sub_sub_subcategory_id)
       : null;
+  const qty = quantity ? parseInt(quantity) : 0;
 
-  if (!name || !price || !subSubSubcatId || !imageFilename) {
+  if (!name || !price || !subSubSubcatId || !imageFilename || isNaN(qty)) {
     return res.status(400).json({
-      message: "Name, Price, Sub-Sub-Subcategory ID, and Image are required",
+      message:
+        "Name, Price, Quantity, Sub-Sub-Subcategory ID, and Image are required",
     });
   }
 
   const sql = `
-    INSERT INTO products (name, description, price, sub_sub_subcategory_id, image_url, seller_id)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO products (name, description, price, quantity, sub_sub_subcategory_id, image_url, seller_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
     sql,
-    [name, description || "", price, subSubSubcatId, imageFilename, user.id],
+    [
+      name,
+      description || "",
+      price,
+      qty,
+      subSubSubcatId,
+      imageFilename,
+      user.id,
+    ],
     (err, result) => {
       if (err) return res.status(500).json({ message: err.message });
 
@@ -168,7 +178,7 @@ router.get("/:id", (req, res) => {
 // ✏️ Update product (Only owner or admin)
 router.put("/:id", verifyToken, upload.single("image"), (req, res) => {
   const { id } = req.params;
-  const { name, description, sub_sub_subcategory_id } = req.body;
+  const { name, description, sub_sub_subcategory_id, quantity } = req.body;
   const user = req.user;
   const baseUrl = req.protocol + "://" + req.get("host");
   const imageFilename = req.file
@@ -179,6 +189,7 @@ router.put("/:id", verifyToken, upload.single("image"), (req, res) => {
     sub_sub_subcategory_id && sub_sub_subcategory_id.trim() !== ""
       ? parseInt(sub_sub_subcategory_id)
       : null;
+  const qty = quantity ? parseInt(quantity) : 0;
 
   db.query("SELECT * FROM products WHERE id = ?", [id], (err, results) => {
     if (err) return res.status(500).json({ message: err.message });
@@ -197,13 +208,13 @@ router.put("/:id", verifyToken, upload.single("image"), (req, res) => {
 
     const updateSQL = `
       UPDATE products
-      SET name = ?, description = ?, price = ?, sub_sub_subcategory_id = ?, image_url = ?
+      SET name = ?, description = ?, price = ?, quantity = ?, sub_sub_subcategory_id = ?, image_url = ?
       WHERE id = ?
     `;
 
     db.query(
       updateSQL,
-      [name, description, price, subSubSubcatId, image_url, id],
+      [name, description, price, qty, subSubSubcatId, image_url, id],
       (err, result) => {
         if (err) return res.status(500).json({ message: err.message });
 
