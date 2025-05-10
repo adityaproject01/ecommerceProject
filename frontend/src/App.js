@@ -88,7 +88,12 @@ function App() {
       />
       <Route
         path="/home/place-order"
-        element={<PlaceOrder />}
+        element={
+          <ProtectedRoute
+            element={<PlaceOrder />}
+            allowedRoles={["customer"]}
+          />
+        }
         allowedRoles={["customer"]}
       />
       <Route

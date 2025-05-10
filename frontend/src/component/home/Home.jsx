@@ -29,7 +29,7 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
     axios.get(`${baseUrl}/api/category`).then((res) => {
       setCategory(res.data);
     });
-  }, []);
+  }, [totalCartCount]);
   const handleCategoryClick = async (id) => {
     try {
       const res = await axios.get(

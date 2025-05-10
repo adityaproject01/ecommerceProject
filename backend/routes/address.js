@@ -3,9 +3,8 @@ const router = express.Router();
 const db = require("../db");
 const { verifyToken } = require("../middleware/authMiddleware");
 
-// 📮 CREATE: Add New Address (POST /address/add)
 router.post("/add", verifyToken, (req, res) => {
-  const user = req.user; // Extract user from the verified token
+  const user = req.user;
   if (user.role !== "customer") {
     return res.status(403).json({ message: "Only customers can add to cart" });
   }
