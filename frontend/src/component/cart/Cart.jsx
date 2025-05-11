@@ -131,13 +131,13 @@ const Cart = ({ setTotalCartCount }) => {
                   </div>
                   <div className={cartStyles.summaryItem}>
                     <p>Tax</p>
-                    <p>${100}</p>
+                    <p>{100}</p>
                   </div>
                   <div
                     className={`${cartStyles.summaryItem} ${cartStyles.discount}`}
                   >
                     <p>Discount</p>
-                    <p>100</p>
+                    <p>-100</p>
                   </div>
                   <div className={cartStyles.grandTotal}>
                     <p>Total: ₹{totalPrice.toFixed(2)}</p>

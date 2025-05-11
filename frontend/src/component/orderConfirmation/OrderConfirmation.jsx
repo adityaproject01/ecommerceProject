@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import orderSucCss from "./orderSucCss.module.css";
 
@@ -10,7 +10,7 @@ const OrderConfirmation = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
-
+const navigate =useNavigate()
   const fetchOrderDetails = useCallback(async () => {
     try {
       const orderIdInt = parseInt(orderId);
@@ -36,10 +36,19 @@ const OrderConfirmation = () => {
       setError("Failed to load order details.");
     }
   }, [orderId, token]);
-
+  const handleGoToOrders = () => {
+    navigate("/home/order-history", { replace: true });
+  };
   useEffect(() => {
     fetchOrderDetails();
   }, [fetchOrderDetails]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      navigate("/home/order-history", { replace: true });
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [navigate]);
 
   if (loading) {
     return <div className={orderSucCss.loading}>Loading...</div>;
@@ -55,7 +64,7 @@ const OrderConfirmation = () => {
 
   return (
     <div className={orderSucCss.containerOrder}>
-       <div className={orderSucCss.card}>
+      <div className={orderSucCss.card}>
         <h2 className={orderSucCss.success}>✅ Order Placed Successfully!</h2>
         <h3 className={orderSucCss.subtitle}>Order ID: #{orderId}</h3>
 
@@ -63,9 +72,15 @@ const OrderConfirmation = () => {
           {items.length > 0 ? (
             items.map((item, index) => (
               <div key={index} className={orderSucCss.productItem}>
-                <p><strong>Product:</strong> {item.product_name}</p>
-                <p><strong>Quantity:</strong> {item.quantity}</p>
-                <p><strong>Price:</strong> ₹{item.price}</p>
+                <p>
+                  <strong>Product:</strong> {item.product_name}
+                </p>
+                <p>
+                  <strong>Quantity:</strong> {item.quantity}
+                </p>
+                <p>
+                  <strong>Price:</strong> ₹{item.price}
+                </p>
               </div>
             ))
           ) : (
@@ -73,10 +88,10 @@ const OrderConfirmation = () => {
           )}
         </div>
 
-        <Link to="/home/order-history" className={orderSucCss.link}>
+        <button onClick={handleGoToOrders} className={orderSucCss.link}>
           View My Orders
-        </Link>
-      </div> 
+        </button>
+      </div>
     </div>
   );
 };

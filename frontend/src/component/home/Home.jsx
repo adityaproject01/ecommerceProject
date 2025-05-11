@@ -4,6 +4,7 @@ import AutoSlider from "./AutoSlider";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import cartIocn from "../../images/banner/carticon1.png";
+import profile from "../../images/banner/profile.png";
 const Home = ({ setViewMoreDetails, totalCartCount }) => {
   const token = localStorage.getItem("token");
 
@@ -21,7 +22,6 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
   const baseUrl = "http://localhost:5000";
 
   useEffect(() => {
-    
     axios.get(`${baseUrl}/api/products/`).then((res) => {
       setProducts(res.data.products);
     });
@@ -83,6 +83,7 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
     setShowSubSubcategory(false);
     setShowSubSubSubcategory(false);
   };
+
   const logoutButton = () => {
     localStorage.removeItem("token");
     navigate("/home");
@@ -102,16 +103,22 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
         <div className={homecss.homeHeadderBody}>
           <div className={homecss.homeHeadder}>
             <div className={homecss.homeHeaderLeft}>
-            <p >Welcome to online shopping</p>
-
+              <p>Welcome to online shopping</p>
             </div>
             <div className={homecss.homeHeaderRight}>
-              <div  className={homecss.cartImg}>
-
-            <img onClick={()=>{navigate("/home/cart")}}src={cartIocn}width={"70px"} />
-            <p className={homecss.cartCnt}>{totalCartCount}</p>
+              <div className={homecss.cartImg}>
+                <img
+                  onClick={() => {
+                    navigate("/home/cart");
+                  }}
+                  src={cartIocn}
+                />
+                <p className={homecss.cartCnt}>{totalCartCount}</p>
               </div>
-            <button className={homecss.Logout} onClick={logoutButton}>Logout</button>
+              <img src={profile} width={"50px"} />
+              <button className={homecss.Logout} onClick={logoutButton}>
+                Logout
+              </button>
             </div>
             {/* <div className={homecss.bannerTitle1}>
 
@@ -127,108 +134,113 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
         </div>
 
         <div className={homecss.category}>
-          <div className={homecss.subCategory}>
-            {/* Categories */}
-            {!showSubcategory &&
-              category.map((item, index) => (
-                <div key={index} className={homecss.categoryCard}>
-                  <img
-                    onClick={() => handleCategoryClick(item.id)}
-                    src={item.image_url}
-                    alt=""
-                    className={homecss.categoryImage}
-                  />
-                 
-                  <p className={homecss.categoryDetails}>{item.name}</p>
-                </div>
-              ))}
+  <div className={homecss.subCategory}>
+    {/* Categories */}
+    {!showSubcategory && (
+  <div className={homecss.categoryContainer}>
+    {category.map((item, index) => (
+      <div key={index} className={homecss.categoryCard}>
+        <img
+          onClick={() => handleCategoryClick(item.id)}
+          src={item.image_url}
+          alt=""
+          className={homecss.categoryImage}
+        />
+        <p className={homecss.categoryDetails}>{item.name}</p>
+      </div>
+    ))}
+  </div>
+)}
 
-            {/* Subcategories */}
 
-            {showSubcategory && !showSubSubcategory && (
-              <>
-                <button
-                  className={homecss.backButton}
-                  onClick={handleBackToCategories}
-                >
-                  ← Back
-                </button>
-                {subCategories.map((item, index) => (
-                  <div key={index} className={homecss.categoryCard}>
-                    <img
-                      onClick={() =>
-                        handleSubCategoryClick(item.subcategory_id)
-                      }
-                      src={item.image_url}
-                      alt=""
-                      className={homecss.categoryImage}
-                    />
-                    <p className={homecss.categoryDetails}>
-                      {item.subcategory_name}
-                    </p>
-                  </div>
-                ))}
-              </>
-            )}
-
-            {/* Sub-subcategories */}
-            {showSubSubcategory && !showSubSubSubcategory && (
-              <>
-                <button
-                  className={homecss.backButton}
-                  onClick={handleBackToSubcategories}
-                >
-                  ← Back
-                </button>
-                {subSubCategories.length > 0 ? (
-                  subSubCategories.map((item, index) => (
-                    <div key={index} className={homecss.categoryCard}>
-                      <img
-                        onClick={() =>
-                          handleSubSubCategoryClick(item.subsub_id)
-                        }
-                        src={`${baseUrl}${item.image_url}`}
-                        alt=""
-                        className={homecss.categoryImage}
-                      />
-                      <p className={homecss.categoryDetails}>
-                        {item.subsub_name}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <p>No sub-subcategories available.</p>
-                )}
-              </>
-            )}
-
-            {/* Sub-sub-subcategories */}
-            {showSubSubSubcategory && (
-              <>
-                <button
-                  className={homecss.backButton}
-                  onClick={handleBackToSubSubcategories}
-                >
-                  ← Back
-                </button>
-                {subSubSubCategories.length > 0 ? (
-                  subSubSubCategories.map((item, index) => (
-                    <div key={index} className={homecss.categoryCard}>
-                      <img
-                        src={`${baseUrl}${item.image_url}`}
-                        alt={item.name}
-                        className={homecss.categoryImage}
-                      />
-                      <p className={homecss.categoryDetails}>{item.name}</p>
-                    </div>
-                  ))
-                ) : (
-                  <p>No sub-sub-subcategories available.</p>
-                )}
-              </>
-            )}
-          </div>
+    {/* Subcategories */}
+    {showSubcategory && !showSubSubcategory && (
+      <>
+        <button
+          className={homecss.backButton}
+          onClick={handleBackToCategories}
+        >
+          ← Back
+        </button>
+        <div className={homecss.categoryContainer}>
+          {subCategories.map((item, index) => (
+            <div key={index} className={homecss.categoryCard}>
+              <img
+                onClick={() => handleSubCategoryClick(item.subcategory_id)}
+                src={item.image_url}
+                alt=""
+                className={homecss.categoryImage}
+              />
+              <p className={homecss.categoryDetails}>
+                {item.subcategory_name}
+              </p>
+            </div>
+          ))}
         </div>
+      </>
+    )}
+
+    {/* Sub-subcategories */}
+    {showSubSubcategory && !showSubSubSubcategory && (
+      <>
+        <button
+          className={homecss.backButton}
+          onClick={handleBackToSubcategories}
+        >
+          ← Back
+        </button>
+        {subSubCategories.length > 0 ? (
+          <div className={homecss.categoryContainer}>
+            {subSubCategories.map((item, index) => (
+              <div key={index} className={homecss.categoryCard}>
+                <img
+                  onClick={() => handleSubSubCategoryClick(item.subsub_id)}
+                  src={`${baseUrl}${item.image_url}`}
+                  alt=""
+                  className={homecss.categoryImage}
+                />
+                <p className={homecss.categoryDetails}>
+                  {item.subsub_name}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No sub-subcategories available.</p>
+        )}
+      </>
+    )}
+
+    {/* Sub-sub-subcategories */}
+    {showSubSubSubcategory && (
+      <>
+        <button
+          className={homecss.backButton}
+          onClick={handleBackToSubSubcategories}
+        >
+          ← Back
+        </button>
+        {subSubSubCategories.length > 0 ? (
+          <div className={homecss.categoryContainer}>
+            {subSubSubCategories.map((item, index) => (
+              <div key={index} className={homecss.categoryCard}>
+                <img
+                  src={`${baseUrl}${item.image_url}`}
+                  alt={item.name}
+                  className={homecss.categoryImage}
+                />
+                <p className={homecss.categoryDetails}>{item.name}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No sub-sub-subcategories available.</p>
+        )}
+      </>
+    )}
+  </div>
+</div>
+
 
         {/* Products Section */}
         <div className={homecss.products}>
@@ -258,7 +270,9 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
               </div>
             </div>
           ))}
-          {/* <nav aria-label="pagination">
+         
+        </div>
+        <nav aria-label="pagination">
             <ul className={homecss.pagination}>
               <li>
                 <div className={homecss.paginationLink}>
@@ -299,8 +313,7 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
                 </div>
               </li>
             </ul>
-          </nav> */}
-        </div>
+          </nav>
       </div>
     </div>
   );

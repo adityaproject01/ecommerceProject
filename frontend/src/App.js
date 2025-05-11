@@ -18,6 +18,7 @@ import OrderConfirmation from "./component/orderConfirmation/OrderConfirmation";
 import OrderHistory from "./component/orderHistory/OrderHistory";
 import AdminSubSubSubCategory from "./component/admin/adminSubSubSubCategory/AdminSubSubSubCategory";
 import axios from "axios";
+import OrderConfirm from "./component/orderConfirmation/OrderConfirm";
 
 function App() {
   const navigate = useNavigate();
@@ -105,6 +106,7 @@ function App() {
           />
         }
       />
+
       <Route
         path="/home/order-history"
         element={<OrderHistory />}

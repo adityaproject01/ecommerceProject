@@ -101,8 +101,26 @@ router.put("/update/:product_id", verifyToken, (req, res) => {
     res.status(200).json({ message: "Cart item updated successfully" });
   });
 });
+// ❌ Clear all items in the logged-in customer's cart
+router.delete("/clear", verifyToken, (req, res) => {
+  const user = req.user;
 
-// ❌ Remove an item from cart
+  if (user.role !== "customer") {
+    return res
+      .status(403)
+      .json({ message: "Only customers can clear the cart" });
+  }
+
+  const sql = "DELETE FROM cart WHERE user_id = ?";
+
+  db.query(sql, [user.id], (err, result) => {
+    if (err) return res.status(500).json({ message: err.message });
+
+    res.status(200).json({ message: "Cart cleared successfully" });
+  });
+});
+
+// Remove an item from cart
 router.delete("/remove/:product_id", verifyToken, (req, res) => {
   const user = req.user;
 
