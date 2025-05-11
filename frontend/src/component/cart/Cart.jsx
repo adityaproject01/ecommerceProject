@@ -23,7 +23,7 @@ const Cart = ({ setTotalCartCount }) => {
 
   useEffect(() => {
     fetchCart();
-  }, [token]);
+  }, [token,fetchCart]);
 
   useEffect(() => {
     if (cartDetails.length) {
@@ -79,7 +79,14 @@ const Cart = ({ setTotalCartCount }) => {
         </div>
 
         {cartDetails.length === 0 ? (
-          <p className={cartStyles.emptyMessage}>Your cart is empty</p>
+          <div className={cartStyles.emptyMessage}>
+            
+            
+           <p>
+            Your cart is empty
+            </p> 
+            <button className={cartStyles.cnt} onClick={()=>{navigate("/home")}}>Continue Shopping</button>
+            </div>
         ) : (
           <>
             <div className={cartStyles.main}>

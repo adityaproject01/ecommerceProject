@@ -198,3 +198,19 @@
   margin-top: 40px;
   font-size: 14px;
 }
+.cnt{
+  width: 140px;
+  height: 40%;
+  border: none;
+  box-shadow: 0px 0px 2px black;
+  background: none;
+}
+.emptyMessage{
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  width: 50%;
+  height: 100px;
+}

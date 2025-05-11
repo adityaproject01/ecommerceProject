@@ -5,18 +5,20 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import cartIocn from "../../images/banner/carticon1.png";
 import profile from "../../images/banner/profile.png";
-const Home = ({ setViewMoreDetails, totalCartCount }) => {
-  const token = localStorage.getItem("token");
 
+const Home = ({ setViewMoreDetails, totalCartCount }) => {
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [subSubCategories, setSubSubCategories] = useState([]);
   const [subSubSubCategories, setSubSubSubCategories] = useState([]);
-
   const [showSubcategory, setShowSubcategory] = useState(false);
   const [showSubSubcategory, setShowSubSubcategory] = useState(false);
   const [showSubSubSubcategory, setShowSubSubSubcategory] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
   const navigate = useNavigate();
   const baseUrl = "http://localhost:5000";
@@ -30,6 +32,7 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
       setCategory(res.data);
     });
   }, [totalCartCount]);
+
   const handleCategoryClick = async (id) => {
     try {
       const res = await axios.get(
@@ -39,6 +42,8 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
       setShowSubcategory(true);
       setShowSubSubcategory(false);
       setShowSubSubSubcategory(false);
+      setFilteredProducts([]);
+      setCurrentPage(1);
     } catch (err) {
       console.log("Subcategory fetch failed:", err);
     }
@@ -52,6 +57,8 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
       setSubSubCategories(res.data);
       setShowSubSubcategory(true);
       setShowSubSubSubcategory(false);
+      setFilteredProducts([]);
+      setCurrentPage(1);
     } catch (err) {
       console.log("Sub-subcategory fetch failed:", err);
     }
@@ -64,38 +71,69 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
       );
       setSubSubSubCategories(res.data);
       setShowSubSubSubcategory(true);
+      setFilteredProducts([]);
+      setCurrentPage(1);
     } catch (err) {
       console.log("Sub-sub-subcategory fetch failed:", err);
     }
   };
-  const handleUserVm = (itemId) => {
-    const selectedItem = products.find((product) => product.id === itemId);
 
+  const handleSubSubSubCategoryClick = async (subSubSubCatId) => {
+    try {
+      const res = await axios.get(
+        `${baseUrl}/api/products?sub_sub_subcategory=${subSubSubCatId}`
+      );
+      setFilteredProducts(res.data.products);
+      setCurrentPage(1);
+    } catch (err) {
+      console.log("Product filter by sub-sub-subcategory failed:", err);
+    }
+  };
+
+  const handleUserVm = (itemId) => {
+    const selectedItem = [...products, ...filteredProducts].find(
+      (product) => product.id === itemId
+    );
     if (selectedItem) {
       setViewMoreDetails(selectedItem);
       navigate("/home/viewmore");
     }
   };
 
-  // Navigation handlers
   const handleBackToCategories = () => {
     setShowSubcategory(false);
     setShowSubSubcategory(false);
     setShowSubSubSubcategory(false);
+    setFilteredProducts([]);
+    setCurrentPage(1);
+  };
+
+  const handleBackToSubcategories = () => {
+    setShowSubSubcategory(false);
+    setShowSubSubSubcategory(false);
+    setFilteredProducts([]);
+    setCurrentPage(1);
+  };
+
+  const handleBackToSubSubcategories = () => {
+    setShowSubSubSubcategory(false);
+    setFilteredProducts([]);
+    setCurrentPage(1);
   };
 
   const logoutButton = () => {
     localStorage.removeItem("token");
     navigate("/home");
   };
-  const handleBackToSubcategories = () => {
-    setShowSubSubcategory(false);
-    setShowSubSubSubcategory(false);
+
+  const paginate = (items) => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return items.slice(start, start + itemsPerPage);
   };
 
-  const handleBackToSubSubcategories = () => {
-    setShowSubSubSubcategory(false);
-  };
+  const displayedProducts =
+    filteredProducts.length > 0 ? filteredProducts : products;
+  const totalPages = Math.ceil(displayedProducts.length / itemsPerPage);
 
   return (
     <div className={homecss.home}>
@@ -107,12 +145,7 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
             </div>
             <div className={homecss.homeHeaderRight}>
               <div className={homecss.cartImg}>
-                <img
-                  onClick={() => {
-                    navigate("/home/cart");
-                  }}
-                  src={cartIocn}
-                />
+                <img onClick={() => navigate("/home/cart")} src={cartIocn} />
                 <p className={homecss.cartCnt}>{totalCartCount}</p>
               </div>
               <img src={profile} width={"50px"} />
@@ -120,29 +153,23 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
                 Logout
               </button>
             </div>
-            {/* <div className={homecss.bannerTitle1}>
-
-            </div>
-            <div className={homecss.cartIcon}>
-
-            
-            </div> */}
           </div>
         </div>
+
         <div className={homecss.homeBanner}>
           <AutoSlider />
         </div>
-        {/* category */}
+        {/* Categories */}
         <div className={homecss.category}>
           <div className={homecss.subCategory}>
-            {/* Categories */}
+            {/* Top-level categories */}
             {!showSubcategory && (
               <div className={homecss.categoryContainer}>
                 {category.map((item, index) => (
                   <div
                     onClick={() => handleCategoryClick(item.id)}
-                    key={index}
                     className={homecss.categoryCard}
+                    key={index}
                   >
                     <img
                       src={item.image_url}
@@ -190,15 +217,15 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
             {/* Sub-subcategories */}
             {showSubSubcategory && !showSubSubSubcategory && (
               <div className={homecss.subCat}>
-                {subSubCategories.length > 0 ? (
-                  <div className={homecss.categoryContainer}>
-                    <button
-                      className={homecss.backButton}
-                      onClick={handleBackToSubcategories}
-                    >
-                      ← Back
-                    </button>
-                    {subSubCategories.map((item, index) => (
+                <div className={homecss.categoryContainer}>
+                  <button
+                    className={homecss.backButton}
+                    onClick={handleBackToSubcategories}
+                  >
+                    ← Back
+                  </button>
+                  {subSubCategories.length > 0 ? (
+                    subSubCategories.map((item, index) => (
                       <div
                         key={index}
                         onClick={() =>
@@ -215,35 +242,31 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
                           {item.subsub_name}
                         </p>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p>
-                    <button
-                      className={homecss.backButton}
-                      onClick={handleBackToCategories}
-                    >
-                      ← Back
-                    </button>
-                    No product available, Right Now.
-                  </p>
-                )}
+                    ))
+                  ) : (
+                    <p>No sub-subcategories found.</p>
+                  )}
+                </div>
               </div>
             )}
 
             {/* Sub-sub-subcategories */}
             {showSubSubSubcategory && (
               <div className={homecss.subCat}>
-                {subSubSubCategories.length > 0 ? (
-                  <div className={homecss.categoryContainer}>
-                    <button
-                      className={homecss.backButton}
-                      onClick={handleBackToSubSubcategories}
-                    >
-                      ← Back
-                    </button>
-                    {subSubSubCategories.map((item, index) => (
-                      <div key={index} className={homecss.categoryCard}>
+                <div className={homecss.categoryContainer}>
+                  <button
+                    className={homecss.backButton}
+                    onClick={handleBackToSubSubcategories}
+                  >
+                    ← Back
+                  </button>
+                  {subSubSubCategories.length > 0 ? (
+                    subSubSubCategories.map((item, index) => (
+                      <div
+                        key={index}
+                        onClick={() => handleSubSubSubCategoryClick(item.id)}
+                        className={homecss.categoryCard}
+                      >
                         <img
                           src={`${baseUrl}${item.image_url}`}
                           alt={item.name}
@@ -251,92 +274,79 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
                         />
                         <p className={homecss.categoryDetails}>{item.name}</p>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p>
-                    <button
-                      className={homecss.backButton}
-                      onClick={handleBackToSubSubcategories}
-                    >
-                      ← Back
-                    </button>
-                    No product available Right Now.
-                  </p>
-                )}
+                    ))
+                  ) : (
+                    <p>No sub-sub-subcategories found.</p>
+                  )}
+                </div>
               </div>
             )}
           </div>
         </div>
-
-        {/* Products Section */}
+        {/* Products */}
         <div className={homecss.products}>
-          {products.map((item, index) => (
+          {paginate(displayedProducts).map((item, index) => (
             <div key={index} className={homecss.subProducts}>
-              <div className={homecss.productImageCard}>
-                <img
-                  src={item.image_url}
-                  alt=""
-                  className={homecss.productImage}
-                />
-              </div>
-              <p className={homecss.productDetailsName}>{item.name}</p>
-              <div className={homecss.productCardPrice}>
-                <b>
-                  <p className={homecss.price}>Price {item.price}</p>
-                </b>
-
-                <button
-                  className={homecss.viewMorebtn}
-                  onClick={() => {
-                    handleUserVm(item.id);
-                  }}
-                >
-                  ViewMore
-                </button>
+              <div className={homecss.subProductImg}>
+                <div className={homecss.productImageCard}>
+                  <img
+                    src={item.image_url}
+                    alt=""
+                    className={homecss.productImage}
+                  />
+                </div>
+                <div className={homecss.productBlur}>
+                  <p className={homecss.productDetailsName}>{item.name}</p>
+                  <div className={homecss.productCardPrice}>
+                    <b>
+                      <p className={homecss.price}>Price {item.price}</p>
+                    </b>
+                    <button
+                      className={homecss.viewMorebtn}
+                      onClick={() => handleUserVm(item.id)}
+                    >
+                      ViewMore
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
         </div>
+
         <nav aria-label="pagination">
           <ul className={homecss.pagination}>
             <li>
-              <div className={homecss.paginationLink}>
-                <span aria-hidden="true">&laquo;</span>
-                <span className={homecss.visuallyhidden}>
-                  previous set of pages
-                </span>
-              </div>
+              <button
+                className={homecss.paginationLink}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                &laquo;
+              </button>
             </li>
+            {[...Array(totalPages)].map((_, i) => (
+              <li key={i}>
+                <button
+                  className={`${homecss.paginationLink} ${
+                    currentPage === i + 1 ? homecss.activePage : ""
+                  }`}
+                  onClick={() => setCurrentPage(i + 1)}
+                >
+                  {i + 1}
+                </button>
+              </li>
+            ))}
             <li>
-              <div className={homecss.paginationLink}>
-                <span className={homecss.visuallyhidden}>page </span>1
-              </div>
-            </li>
-            <li>
-              <div className={homecss.paginationLink}>
-                <span className={homecss.visuallyhidden}>page </span>2
-              </div>
-            </li>
-            <li>
-              <div className={homecss.paginationLink}>
-                {" "}
-                <span className={homecss.visuallyhidden}>page </span>3{" "}
-              </div>
-            </li>
-            <li>
-              <div className={homecss.paginationLink}>
-                {" "}
-                <span className={homecss.visuallyhidden}>page </span>4{" "}
-              </div>
-            </li>
-            <li>
-              <div className={homecss.paginationLink}>
-                <span className={homecss.visuallyhidden}>
-                  next set of pages
-                </span>
-                <span aria-hidden="true">&raquo;</span>
-              </div>
+              <button
+                className={homecss.paginationLink}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+              >
+                &raquo;
+              </button>
             </li>
           </ul>
         </nav>
