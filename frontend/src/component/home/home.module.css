@@ -131,13 +131,23 @@ width: 60%;
   width: 100%;
   height: 100%;
 }
+.category{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  width: 100%;
+  height: auto;
+}
 .categoryContainer {
+  justify-content: center;
   display: flex;
   flex-direction: row;
   overflow-x: auto;
   gap: 20px;
   width: 100%;
-  height: 30%;
+  height: 100%;
   padding: 10px;
   scroll-behavior: smooth;
 }
@@ -196,7 +206,14 @@ width: 60%;
   width: 90%;
   height: 60%;
 }
-
+.subCategory{
+  display: flex
+;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+}
 .subProducts {
   width: 100%;
   height: 100%;

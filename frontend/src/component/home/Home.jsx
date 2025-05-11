@@ -132,115 +132,142 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
         <div className={homecss.homeBanner}>
           <AutoSlider />
         </div>
-
+        {/* category */}
         <div className={homecss.category}>
-  <div className={homecss.subCategory}>
-    {/* Categories */}
-    {!showSubcategory && (
-  <div className={homecss.categoryContainer}>
-    {category.map((item, index) => (
-      <div key={index} className={homecss.categoryCard}>
-        <img
-          onClick={() => handleCategoryClick(item.id)}
-          src={item.image_url}
-          alt=""
-          className={homecss.categoryImage}
-        />
-        <p className={homecss.categoryDetails}>{item.name}</p>
-      </div>
-    ))}
-  </div>
-)}
+          <div className={homecss.subCategory}>
+            {/* Categories */}
+            {!showSubcategory && (
+              <div className={homecss.categoryContainer}>
+                {category.map((item, index) => (
+                  <div
+                    onClick={() => handleCategoryClick(item.id)}
+                    key={index}
+                    className={homecss.categoryCard}
+                  >
+                    <img
+                      src={item.image_url}
+                      alt=""
+                      className={homecss.categoryImage}
+                    />
+                    <p className={homecss.categoryDetails}>{item.name}</p>
+                  </div>
+                ))}
+              </div>
+            )}
 
+            {/* Subcategories */}
+            {showSubcategory && !showSubSubcategory && (
+              <div className={homecss.subCat}>
+                <div className={homecss.categoryContainer}>
+                  <button
+                    className={homecss.backButton}
+                    onClick={handleBackToCategories}
+                  >
+                    ← Back
+                  </button>
+                  {subCategories.map((item, index) => (
+                    <div
+                      onClick={() =>
+                        handleSubCategoryClick(item.subcategory_id)
+                      }
+                      key={index}
+                      className={homecss.categoryCard}
+                    >
+                      <img
+                        src={item.image_url}
+                        alt=""
+                        className={homecss.categoryImage}
+                      />
+                      <p className={homecss.categoryDetails}>
+                        {item.subcategory_name}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-    {/* Subcategories */}
-    {showSubcategory && !showSubSubcategory && (
-      <>
-        <button
-          className={homecss.backButton}
-          onClick={handleBackToCategories}
-        >
-          ← Back
-        </button>
-        <div className={homecss.categoryContainer}>
-          {subCategories.map((item, index) => (
-            <div key={index} className={homecss.categoryCard}>
-              <img
-                onClick={() => handleSubCategoryClick(item.subcategory_id)}
-                src={item.image_url}
-                alt=""
-                className={homecss.categoryImage}
-              />
-              <p className={homecss.categoryDetails}>
-                {item.subcategory_name}
-              </p>
-            </div>
-          ))}
+            {/* Sub-subcategories */}
+            {showSubSubcategory && !showSubSubSubcategory && (
+              <div className={homecss.subCat}>
+                {subSubCategories.length > 0 ? (
+                  <div className={homecss.categoryContainer}>
+                    <button
+                      className={homecss.backButton}
+                      onClick={handleBackToSubcategories}
+                    >
+                      ← Back
+                    </button>
+                    {subSubCategories.map((item, index) => (
+                      <div
+                        key={index}
+                        onClick={() =>
+                          handleSubSubCategoryClick(item.subsub_id)
+                        }
+                        className={homecss.categoryCard}
+                      >
+                        <img
+                          src={`${baseUrl}${item.image_url}`}
+                          alt=""
+                          className={homecss.categoryImage}
+                        />
+                        <p className={homecss.categoryDetails}>
+                          {item.subsub_name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p>
+                    <button
+                      className={homecss.backButton}
+                      onClick={handleBackToCategories}
+                    >
+                      ← Back
+                    </button>
+                    No product available, Right Now.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Sub-sub-subcategories */}
+            {showSubSubSubcategory && (
+              <div className={homecss.subCat}>
+                {subSubSubCategories.length > 0 ? (
+                  <div className={homecss.categoryContainer}>
+                    <button
+                      className={homecss.backButton}
+                      onClick={handleBackToSubSubcategories}
+                    >
+                      ← Back
+                    </button>
+                    {subSubSubCategories.map((item, index) => (
+                      <div key={index} className={homecss.categoryCard}>
+                        <img
+                          src={`${baseUrl}${item.image_url}`}
+                          alt={item.name}
+                          className={homecss.categoryImage}
+                        />
+                        <p className={homecss.categoryDetails}>{item.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p>
+                    <button
+                      className={homecss.backButton}
+                      onClick={handleBackToSubSubcategories}
+                    >
+                      ← Back
+                    </button>
+                    No product available Right Now.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </>
-    )}
-
-    {/* Sub-subcategories */}
-    {showSubSubcategory && !showSubSubSubcategory && (
-      <>
-        <button
-          className={homecss.backButton}
-          onClick={handleBackToSubcategories}
-        >
-          ← Back
-        </button>
-        {subSubCategories.length > 0 ? (
-          <div className={homecss.categoryContainer}>
-            {subSubCategories.map((item, index) => (
-              <div key={index} className={homecss.categoryCard}>
-                <img
-                  onClick={() => handleSubSubCategoryClick(item.subsub_id)}
-                  src={`${baseUrl}${item.image_url}`}
-                  alt=""
-                  className={homecss.categoryImage}
-                />
-                <p className={homecss.categoryDetails}>
-                  {item.subsub_name}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>No sub-subcategories available.</p>
-        )}
-      </>
-    )}
-
-    {/* Sub-sub-subcategories */}
-    {showSubSubSubcategory && (
-      <>
-        <button
-          className={homecss.backButton}
-          onClick={handleBackToSubSubcategories}
-        >
-          ← Back
-        </button>
-        {subSubSubCategories.length > 0 ? (
-          <div className={homecss.categoryContainer}>
-            {subSubSubCategories.map((item, index) => (
-              <div key={index} className={homecss.categoryCard}>
-                <img
-                  src={`${baseUrl}${item.image_url}`}
-                  alt={item.name}
-                  className={homecss.categoryImage}
-                />
-                <p className={homecss.categoryDetails}>{item.name}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>No sub-sub-subcategories available.</p>
-        )}
-      </>
-    )}
-  </div>
-</div>
-
 
         {/* Products Section */}
         <div className={homecss.products}>
@@ -270,50 +297,49 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
               </div>
             </div>
           ))}
-         
         </div>
         <nav aria-label="pagination">
-            <ul className={homecss.pagination}>
-              <li>
-                <div className={homecss.paginationLink}>
-                  <span aria-hidden="true">&laquo;</span>
-                  <span className={homecss.visuallyhidden}>
-                    previous set of pages
-                  </span>
-                </div>
-              </li>
-              <li>
-                <div className={homecss.paginationLink}>
-                  <span className={homecss.visuallyhidden}>page </span>1
-                </div>
-              </li>
-              <li>
-                <div className={homecss.paginationLink}>
-                  <span className={homecss.visuallyhidden}>page </span>2
-                </div>
-              </li>
-              <li>
-                <div className={homecss.paginationLink}>
-                  {" "}
-                  <span className={homecss.visuallyhidden}>page </span>3{" "}
-                </div>
-              </li>
-              <li>
-                <div className={homecss.paginationLink}>
-                  {" "}
-                  <span className={homecss.visuallyhidden}>page </span>4{" "}
-                </div>
-              </li>
-              <li>
-                <div className={homecss.paginationLink}>
-                  <span className={homecss.visuallyhidden}>
-                    next set of pages
-                  </span>
-                  <span aria-hidden="true">&raquo;</span>
-                </div>
-              </li>
-            </ul>
-          </nav>
+          <ul className={homecss.pagination}>
+            <li>
+              <div className={homecss.paginationLink}>
+                <span aria-hidden="true">&laquo;</span>
+                <span className={homecss.visuallyhidden}>
+                  previous set of pages
+                </span>
+              </div>
+            </li>
+            <li>
+              <div className={homecss.paginationLink}>
+                <span className={homecss.visuallyhidden}>page </span>1
+              </div>
+            </li>
+            <li>
+              <div className={homecss.paginationLink}>
+                <span className={homecss.visuallyhidden}>page </span>2
+              </div>
+            </li>
+            <li>
+              <div className={homecss.paginationLink}>
+                {" "}
+                <span className={homecss.visuallyhidden}>page </span>3{" "}
+              </div>
+            </li>
+            <li>
+              <div className={homecss.paginationLink}>
+                {" "}
+                <span className={homecss.visuallyhidden}>page </span>4{" "}
+              </div>
+            </li>
+            <li>
+              <div className={homecss.paginationLink}>
+                <span className={homecss.visuallyhidden}>
+                  next set of pages
+                </span>
+                <span aria-hidden="true">&raquo;</span>
+              </div>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   );
