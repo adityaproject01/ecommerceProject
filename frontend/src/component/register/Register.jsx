@@ -89,10 +89,11 @@ const Register = () => {
 
           <label>Role</label>
           <select
+          className="registerList"
             value={registerRole}
             onChange={(e) => setRegisterRole(e.target.value)}
           >
-            <option value="">Select</option>
+            <option  value="">Select</option>
             <option value="Customer">Customer</option>
             <option value="Seller">Seller</option>
           </select>

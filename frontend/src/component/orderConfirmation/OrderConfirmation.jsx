@@ -45,7 +45,7 @@ const navigate =useNavigate()
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate("/home/order-history", { replace: true });
-    }, 1000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [navigate]);

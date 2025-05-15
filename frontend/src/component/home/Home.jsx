@@ -16,12 +16,13 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
   const [showSubcategory, setShowSubcategory] = useState(false);
   const [showSubSubcategory, setShowSubSubcategory] = useState(false);
   const [showSubSubSubcategory, setShowSubSubSubcategory] = useState(false);
-
+  const [onModalOpen, setOnModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
 
   const navigate = useNavigate();
-  const baseUrl = "http://localhost:5000";
+
+  const baseUrl = "http://192.168.230.10:5000";
 
   useEffect(() => {
     axios.get(`${baseUrl}/api/products/`).then((res) => {
@@ -138,24 +139,69 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
   return (
     <div className={homecss.home}>
       <div className={homecss.homeBackground}>
-        <div className={homecss.homeHeadderBody}>
-          <div className={homecss.homeHeadder}>
-            <div className={homecss.homeHeaderLeft}>
-              <p>Welcome to online shopping</p>
-            </div>
-            <div className={homecss.homeHeaderRight}>
-              <div className={homecss.cartImg}>
-                <img onClick={() => navigate("/home/cart")} src={cartIocn} />
-                <p className={homecss.cartCnt}>{totalCartCount}</p>
+        <div className={homecss.homeHeadderBodyMob}>
+          <div className={homecss.homeHeaderLeft}>
+            <p>Welcome to online shopping</p>
+          </div>
+          <div className={homecss.homeHeaderRight}>
+            {onModalOpen ? (
+              <div className={homecss.homeHeaderRightMobileopen}>
+                <button
+                  aria-label="Close menu"
+                  className={homecss.toggleButton + " " + homecss.menuClose}
+                  onClick={() => setOnModalOpen(false)}
+                >
+                  ✕
+                </button>
+
+                <div className={homecss.menuContent}>
+                  <div
+                    className={homecss.cartImg}
+                    onClick={() => navigate("/home/cart")}
+                  >
+                    <img alt="Cart" src={cartIocn} />
+                    <p className={homecss.cartCnt}>{totalCartCount}</p>
+                  </div>
+
+                  <img
+                    alt="Profile"
+                    src={profile}
+                    width="50px"
+                    className={homecss.profilePic}
+                  />
+
+                  <button className={homecss.Logout} onClick={logoutButton}>
+                    Logout
+                  </button>
+                </div>
               </div>
-              <img src={profile} width={"50px"} />
-              <button className={homecss.Logout} onClick={logoutButton}>
-                Logout
+            ) : (
+              <button
+                aria-label="Open menu"
+                className={homecss.toggleButton}
+                onClick={() => setOnModalOpen(true)}
+              >
+                ☰
               </button>
+            )}
+          </div>
+
+        </div>
+        <div className={homecss.homeHeadderBodyLap}>
+          <div className={homecss.homeHeaderLeft}>
+            <p>Welcome to online shopping</p>
+          </div>
+          <div className={homecss.homeHeaderRight}>
+            <div className={homecss.cartImg}>
+              <img alt="" onClick={() => navigate("/home/cart")} src={cartIocn} />
+              <p className={homecss.cartCnt}>{totalCartCount}</p>
             </div>
+            <img alt=""src={profile} width={"50px"} />
+            <button className={homecss.Logout} onClick={logoutButton}>
+              Logout
+            </button>
           </div>
         </div>
-
         <div className={homecss.homeBanner}>
           <AutoSlider />
         </div>
@@ -312,9 +358,47 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
               </div>
             </div>
           ))}
+          <div className={homecss.paginateMob}>
+            <ul className={homecss.pagination}>
+              <li>
+                <button
+                  className={homecss.paginationLink}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                >
+                  &laquo;
+                </button>
+              </li>
+              {[...Array(totalPages)].map((_, i) => (
+                <li key={i}>
+                  <button
+                    className={`${homecss.paginationLink} ${
+                      currentPage === i + 1 ? homecss.activePage : ""
+                    }`}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                </li>
+              ))}
+              <li>
+                <button
+                  className={homecss.paginationLink}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  &raquo;
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        <nav aria-label="pagination">
+        <div className={homecss.paginatelap}>
           <ul className={homecss.pagination}>
             <li>
               <button
@@ -349,7 +433,7 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
               </button>
             </li>
           </ul>
-        </nav>
+        </div>
       </div>
     </div>
   );
