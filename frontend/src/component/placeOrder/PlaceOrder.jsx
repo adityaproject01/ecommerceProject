@@ -22,7 +22,7 @@ const PlaceOrder = () => {
   const [editForm, setEditForm] = useState({});
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
+  const [openAddr, setOpenAddr] = useState(false);
   const newAddress = {
     full_name: name,
     phone,
@@ -156,47 +156,58 @@ const PlaceOrder = () => {
           <section className={placeCss.sectionLeft}>
             <div className={placeCss.sectionSubLeft}>
               <h3 className={placeCss.subtitle}>Select Shipping Address</h3>
-              <p>Add a New Address:</p>
-              <form
-                className={placeCss.addressForm}
-                onSubmit={handleNewAddress}
+              <button
+                className={placeCss.addAddr}
+                onClick={() => {
+                  setOpenAddr(!openAddr);
+                }}
               >
-                <input
-                  placeholder="Full Name"
-                  onChange={(e) => setName(e.target.value)}
-                />
-                <input
-                  placeholder="Phone"
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-                <input
-                  placeholder="Address Line 1"
-                  onChange={(e) => setAddr1(e.target.value)}
-                />
-                <input
-                  placeholder="Address Line 2"
-                  onChange={(e) => setAddr2(e.target.value)}
-                />
-                <input
-                  placeholder="City"
-                  onChange={(e) => setCity(e.target.value)}
-                />
-                <input
-                  placeholder="State"
-                  onChange={(e) => setStates(e.target.value)}
-                />
-                <input
-                  placeholder="Postal Code"
-                  onChange={(e) => setPostal(e.target.value)}
-                />
-                <input
-                  placeholder="Country"
-                  onChange={(e) => setCountry(e.target.value)}
-                />
-                <button className={placeCss.button} type="submit">
-                  Add Address
-                </button>
-              </form>
+                <p>Add a New Address:</p>
+              </button>
+              {openAddr ? (
+                <form
+                  className={placeCss.addressForm}
+                  onSubmit={handleNewAddress}
+                >
+                  <input
+                    placeholder="Full Name"
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                  <input
+                    placeholder="Phone"
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                  <input
+                    placeholder="Address Line 1"
+                    onChange={(e) => setAddr1(e.target.value)}
+                  />
+                  <input
+                    placeholder="Address Line 2"
+                    onChange={(e) => setAddr2(e.target.value)}
+                  />
+                  <input
+                    placeholder="City"
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                  <input
+                    placeholder="State"
+                    onChange={(e) => setStates(e.target.value)}
+                  />
+                  <input
+                    placeholder="Postal Code"
+                    onChange={(e) => setPostal(e.target.value)}
+                  />
+                  <input
+                    placeholder="Country"
+                    onChange={(e) => setCountry(e.target.value)}
+                  />
+                  <button className={placeCss.button} type="submit">
+                    Add Address
+                  </button>
+                </form>
+              ) : (
+                <></>
+              )}
 
               <div className={placeCss.addressList}>
                 {addresses.map((addr) => (

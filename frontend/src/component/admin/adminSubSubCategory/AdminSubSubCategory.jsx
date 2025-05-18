@@ -73,12 +73,16 @@ const AdminSubSubCategory = () => {
     formData.append("subcategory_id", parseInt(subcategoryId));
 
     try {
-      await axios.post("http://localhost:5000/api/subsubcategory/add", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: token,
-        },
-      });
+      await axios.post(
+        "http://localhost:5000/api/subsubcategory/add",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: token,
+          },
+        }
+      );
       alert("Sub-sub-category added successfully");
       fetchSubCategories();
       closeModal();
@@ -88,8 +92,12 @@ const AdminSubSubCategory = () => {
   };
 
   const handleEditClick = (subCatId, subSubCatId) => {
-    const subCat = getSubCategoryDetails.find(sc => sc.subcategory_id === subCatId);
-    const subSubCat = getSubSubCategoryDetails.find(ssc => ssc.subsub_id === subSubCatId);
+    const subCat = getSubCategoryDetails.find(
+      (sc) => sc.subcategory_id === subCatId
+    );
+    const subSubCat = getSubSubCategoryDetails.find(
+      (ssc) => ssc.subsub_id === subSubCatId
+    );
 
     if (subCat && subSubCat) {
       setEditSubCatId(subCat.subcategory_id);
@@ -154,7 +162,10 @@ const AdminSubSubCategory = () => {
     <div className={adminSubSubCatCss.adminContainer}>
       {/* Navbar */}
       <div className={adminSubSubCatCss.glassNavbar}>
-        <button className={adminSubSubCatCss.navBtn} onClick={() => navigate("/admin")}>
+        <button
+          className={adminSubSubCatCss.navBtn}
+          onClick={() => navigate("/admin")}
+        >
           Home
         </button>
         <div className={adminSubSubCatCss.navTitle}>Welcome, Admin</div>
@@ -174,20 +185,27 @@ const AdminSubSubCategory = () => {
         </div>
       </div>
 
-      <h2 className={adminSubSubCatCss.glassHeader}>Manage Sub-Sub-Categories</h2>
+      <h2 className={adminSubSubCatCss.glassHeader}>
+        Manage Sub-Sub-Categories
+      </h2>
       <Outlet />
 
       {/* Add Modal */}
       {isSetOpen && (
         <div className={adminSubSubCatCss.modalBackdrop}>
-          <div className={`${adminSubSubCatCss.modalContainer} ${adminSubSubCatCss.glassCard}`}>
+          <div
+            className={`${adminSubSubCatCss.modalContainer} ${adminSubSubCatCss.glassCard}`}
+          >
             <h3>Add Sub Sub Category</h3>
             <form onSubmit={handleSubSubCatDetails}>
               <label>Name</label>
               <input type="text" onChange={(e) => setName(e.target.value)} />
 
               <label>Category</label>
-              <select onChange={(e) => setCategoryMain(e.target.value)} defaultValue="">
+              <select
+                onChange={(e) => setCategoryMain(e.target.value)}
+                defaultValue=""
+              >
                 <option disabled value="">
                   Select Category
                 </option>
@@ -199,7 +217,10 @@ const AdminSubSubCategory = () => {
               </select>
 
               <label>SubCategory</label>
-              <select onChange={(e) => setSubCategoryId(e.target.value)} defaultValue="">
+              <select
+                onChange={(e) => setSubCategoryId(e.target.value)}
+                defaultValue=""
+              >
                 <option disabled value="">
                   Select Sub Category
                 </option>
@@ -211,12 +232,19 @@ const AdminSubSubCategory = () => {
               </select>
 
               <label>Image</label>
-              <input type="file" onChange={(e) => setImages(e.target.files[0])} />
+              <input
+                type="file"
+                onChange={(e) => setImages(e.target.files[0])}
+              />
 
               <button type="submit" className={adminSubSubCatCss.saveBtn}>
                 Submit
               </button>
-              <button type="button" className={adminSubSubCatCss.cancelBtn} onClick={closeModal}>
+              <button
+                type="button"
+                className={adminSubSubCatCss.cancelBtn}
+                onClick={closeModal}
+              >
                 Close
               </button>
             </form>
@@ -225,7 +253,9 @@ const AdminSubSubCategory = () => {
       )}
 
       {/* Table */}
-      <div className={`${adminSubSubCatCss.tableHeader} ${adminSubSubCatCss.glassRow}`}>
+      <div
+        className={`${adminSubSubCatCss.tableHeader} ${adminSubSubCatCss.glassRow}`}
+      >
         <div>ID</div>
         <div>SubName</div>
         <div>Image</div>
@@ -244,7 +274,9 @@ const AdminSubSubCategory = () => {
           </div>
           <div className={adminSubSubCatCss.catActions}>
             <button
-              onClick={() => handleEditClick(item.subcategory_id, item.subsub_id)}
+              onClick={() =>
+                handleEditClick(item.subcategory_id, item.subsub_id)
+              }
               className={adminSubSubCatCss.editBtn}
             >
               Edit
@@ -262,7 +294,9 @@ const AdminSubSubCategory = () => {
       {/* Edit Modal */}
       {isSubCatEditOpen && (
         <div className={adminSubSubCatCss.modalBackdrop}>
-          <div className={`${adminSubSubCatCss.modalContainer} ${adminSubSubCatCss.glassCard}`}>
+          <div
+            className={`${adminSubSubCatCss.modalContainer} ${adminSubSubCatCss.glassCard}`}
+          >
             <h3>Edit Sub-SubCategory</h3>
             <form onSubmit={handleEditSubCat}>
               <label>Sub-Sub Category Name:</label>
@@ -272,7 +306,10 @@ const AdminSubSubCategory = () => {
                 onChange={(e) => setSubSubCatEditName(e.target.value)}
               />
               <label>New Image (optional):</label>
-              <input type="file" onChange={(e) => setSubCatEditImg(e.target.files[0])} />
+              <input
+                type="file"
+                onChange={(e) => setSubCatEditImg(e.target.files[0])}
+              />
               <div className={adminSubSubCatCss.modalActions}>
                 <button type="submit" className={adminSubSubCatCss.saveBtn}>
                   Save

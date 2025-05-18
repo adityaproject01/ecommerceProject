@@ -208,7 +208,7 @@ const AdminSubCategory = () => {
                 submit
               </button>
               <button
-              type="button"
+                type="button"
                 className={adminSubCatCss.cancelBtn}
                 onClick={() => {
                   setIsSetOpen(false);

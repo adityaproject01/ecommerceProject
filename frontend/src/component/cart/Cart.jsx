@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import cartStyles from "./cart.module.css";
 
-const Cart = ({ setTotalCartCount }) => {
+const Cart = () => {
   const token = localStorage.getItem("token");
   const [cartDetails, setCartDetails] = useState([]);
   const navigate = useNavigate();
@@ -27,10 +27,9 @@ const Cart = ({ setTotalCartCount }) => {
 
   useEffect(() => {
     if (cartDetails.length) {
-      setTotalCartCount(cartDetails.length);
       console.log("object", cartDetails.length);
     }
-  }, [cartDetails, setTotalCartCount]);
+  }, [cartDetails]);
 
   const handleBuyNow = () => {
     navigate("/home/place-order", { state: { cartItems: cartDetails } });

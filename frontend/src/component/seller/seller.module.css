@@ -1,10 +1,19 @@
+.welMess {
+  font-family: "Merienda", cursive;
+  font-optical-sizing: 20px;
+  font-weight: 600;
+
+  font-style: normal;
+}
 /* seller.module.css */
 .seller {
   color: #2b2d42;
   background: #faf3dd;
-  min-height: 100vh;
+  height: 100dvh;
+  width: 100dvw;
   padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: scroll;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .sellerNav {
@@ -14,6 +23,7 @@
   padding: 1rem 2rem;
   border-radius: 1rem;
   margin-bottom: 2rem;
+  align-items: center;
 }
 
 .sellerNav button {
@@ -53,15 +63,13 @@
   justify-content: center;
   z-index: 1000;
   overflow-y: auto; /* Add this for scrollability if modal is taller than viewport */
-  padding: 1rem;     /* Optional: gives breathing space on smaller screens */
+  padding: 1rem; /* Optional: gives breathing space on smaller screens */
 }
 
-
 .modal {
+  width: 50%;
+  margin: auto;
 
-    width: 50%;
-    margin: auto;
-  
   background: white;
   padding: 2rem;
   border-radius: 1rem;
@@ -69,7 +77,6 @@
 }
 
 .modalNav {
-  
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -134,16 +141,26 @@
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Let the inner wrapper scroll */
 }
 
+/* NEW: Inner scroll wrapper */
+.scrollWrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+/* Product table/grid */
 .product {
   display: grid;
   grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1.5fr 2fr 1fr;
   align-items: center;
   padding: 0.8rem 0;
   border-bottom: 1px solid #ccc;
+  min-width: 900px; /* Makes it wider than mobile screens */
 }
 
+/* Cell styling */
 .productDetails,
 .productDetailsDescription {
   padding: 0.5rem;
@@ -151,11 +168,13 @@
   word-break: break-word;
 }
 
+/* Description cell scroll (vertical) */
 .productDetailsDescription {
   max-height: 80px;
   overflow-y: auto;
 }
 
+/* Buttons */
 .actionButton {
   background: transparent;
   border: none;
@@ -206,4 +225,46 @@
   font-weight: bold;
   color: white;
 }
+/* Responsive styles */
+@media (max-width: 767px) {
+  .sellerNav {
+    display: flex;
+    justify-content: space-between;
+    background: #aed9e0;
+    width: 100%;
+    height: 10%;
+    padding: 5px;
+    border-radius: 10 px;
 
+    align-items: center;
+  }
+  .sellerGlassCard {
+    padding: 1rem;
+  }
+
+  .scrollWrapper {
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .product {
+    font-size: 10px;
+    min-width: 900px; /* Force scroll on small devices */
+  }
+
+  .productDetails,
+  .productDetailsDescription {
+    font-size: 10px;
+    padding: 2px;
+    overflow-x: auto;
+  }
+  .seller {
+    color: #2b2d42;
+    background: #faf3dd;
+    height: 100dvh;
+    width: 100dvw;
+    padding: 1rem;
+    overflow: scroll;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+}

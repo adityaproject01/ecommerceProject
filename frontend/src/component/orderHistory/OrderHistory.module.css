@@ -87,4 +87,19 @@
     transform: scale(1.05);
 
   }
+@media (max-width: 767px) {
+   .bottomButton {
+    background: hotpink;
+    border: none;
+    color: white;
+    height: 50px;
+    width: 40%;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
   
+}

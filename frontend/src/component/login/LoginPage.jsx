@@ -29,11 +29,12 @@ const LoginPage = () => {
       const { token } = response.data;
       const { user } = response.data;
       const role = user.role;
+      const name = user.name;
 
       if (token) {
         localStorage.setItem("token", token);
         localStorage.setItem("role", role);
-
+        localStorage.setItem("user",name);
         if (role === "customer") {
           navigate("/home");
         } else if (role === "seller") {
@@ -57,7 +58,7 @@ const LoginPage = () => {
       <div className="blur-overlay">
         <div className="loginLeft">
           <img src={eccomerce} alt=" " className="loginLeftImage" />
-              <h1 className="loginRightHeadTextTop">Login</h1>
+          <h1 className="loginRightHeadTextTop">Login</h1>
 
           <div className="loginRight">
             <div className="loginRightHeadding">

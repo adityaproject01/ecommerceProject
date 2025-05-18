@@ -6,16 +6,20 @@ import axios from "axios";
 import editImg from "../../images/banner/edit-button_7124470.png";
 import deleteImg from "../../images/banner/delete1.png";
 
-const Seller = () => {
+const Seller = ( ) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productDetails, setProductDetails] = useState([]);
   const [getCategoryDetails, setGetCategoryDetails] = useState([]);
   const [getSubCategoryDetails, setGetSubCategoryDetails] = useState([]);
   const [getSubSubCategoryDetails, setGetSubSubCategoryDetails] = useState([]);
-  const [getSubSubSubCategoryDetails, setGetSubSubSubCategoryDetails] = useState([]);
+  const [getSubSubSubCategoryDetails, setGetSubSubSubCategoryDetails] =
+    useState([]);
   const totalOrders = productDetails.length;
-  const totalQuantity = productDetails.reduce((sum, item) => sum + Number(item.quantity), 0);
-  
+  const totalQuantity = productDetails.reduce(
+    (sum, item) => sum + Number(item.quantity),
+    0
+  );
+
   const [isEditing, setIsEditing] = useState(false);
   const [currentEditId, setCurrentEditId] = useState(null);
 
@@ -31,6 +35,7 @@ const Seller = () => {
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const UN = localStorage.getItem("user");
 
   useEffect(() => {
     fetchProducts();
@@ -85,7 +90,9 @@ const Seller = () => {
 
   const fetchSubSubCategories = (subcategoryId) => {
     axios
-      .get(`http://localhost:5000/api/subsubcategory/subcategory/${subcategoryId}`)
+      .get(
+        `http://localhost:5000/api/subsubcategory/subcategory/${subcategoryId}`
+      )
       .then((res) => setGetSubSubCategoryDetails(res.data))
       .catch((err) => {
         console.error("Failed to fetch sub-subcategories", err);
@@ -95,7 +102,9 @@ const Seller = () => {
 
   const fetchSubSubSubCategories = (subSubcategoryId) => {
     axios
-      .get(`http://localhost:5000/api/subsubsubcategory/subsubcategory/${subSubcategoryId}`)
+      .get(
+        `http://localhost:5000/api/subsubsubcategory/subsubcategory/${subSubcategoryId}`
+      )
       .then((res) => setGetSubSubSubCategoryDetails(res.data))
       .catch((err) => {
         console.error("Failed to fetch sub-sub-subcategories", err);
@@ -157,12 +166,16 @@ const Seller = () => {
     if (productImage) formData.append("image", productImage);
 
     try {
-      await axios.put(`http://localhost:5000/api/products/${productId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: token,
-        },
-      });
+      await axios.put(
+        `http://localhost:5000/api/products/${productId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: token,
+          },
+        }
+      );
       fetchProducts();
       closeModal();
     } catch (error) {
@@ -188,8 +201,8 @@ const Seller = () => {
   return (
     <div className={sellerCss.seller}>
       <div className={sellerCss.sellerNav}>
-        <button onClick={() => navigate("/seller/product")}>Product</button>
         <button onClick={() => setIsModalOpen(true)}>Add Product</button>
+        <p className={sellerCss.welMess}>Welcome {UN}</p>
         <button onClick={logoutButton}>Logout</button>
       </div>
 
@@ -205,120 +218,186 @@ const Seller = () => {
                   <button onClick={closeModal}>Close</button>
                 </div>
                 <div className={sellerCss.productForm}>
-                  <form onSubmit={(e) => isEditing ? handlEditProduct(e, currentEditId) : handleAddProduct(e)}>
+                  <form
+                    onSubmit={(e) =>
+                      isEditing
+                        ? handlEditProduct(e, currentEditId)
+                        : handleAddProduct(e)
+                    }
+                  >
                     <div className={sellerCss.productField}>
                       <label>Name</label>
-                      <input value={productName} onChange={(e) => setProductName(e.target.value)} />
+                      <input
+                        value={productName}
+                        onChange={(e) => setProductName(e.target.value)}
+                      />
                     </div>
                     <div className={sellerCss.productField}>
                       <label>Price</label>
-                      <input type="number" value={productPrice} onChange={(e) => setProductPrice(e.target.value)} />
+                      <input
+                        type="number"
+                        value={productPrice}
+                        onChange={(e) => setProductPrice(e.target.value)}
+                      />
                     </div>
                     <div className={sellerCss.productField}>
                       <label>Quantity</label>
-                      <input type="number" value={productQuantity} onChange={(e) => setProductQuantity(e.target.value)} />
+                      <input
+                        type="number"
+                        value={productQuantity}
+                        onChange={(e) => setProductQuantity(e.target.value)}
+                      />
                     </div>
                     <div className={sellerCss.productField}>
                       <label>Category</label>
-                      <select value={productCategory} onChange={(e) => setProductCategory(e.target.value)}>
+                      <select
+                        value={productCategory}
+                        onChange={(e) => setProductCategory(e.target.value)}
+                      >
                         <option value="">Select Category</option>
                         {getCategoryDetails.map((cat) => (
-                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div className={sellerCss.productField}>
                       <label>SubCategory</label>
-                      <select value={productSubCategory} onChange={(e) => setProductSubCategory(e.target.value)}>
+                      <select
+                        value={productSubCategory}
+                        onChange={(e) => setProductSubCategory(e.target.value)}
+                      >
                         <option value="">Select SubCategory</option>
                         {getSubCategoryDetails.map((sub) => (
-                          <option key={sub.subcategory_id} value={sub.subcategory_id}>{sub.subcategory_name}</option>
+                          <option
+                            key={sub.subcategory_id}
+                            value={sub.subcategory_id}
+                          >
+                            {sub.subcategory_name}
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div className={sellerCss.productField}>
                       <label>SubSubCategory</label>
-                      <select value={productSubSubCategory} onChange={(e) => setProductSubSubCategory(e.target.value)}>
+                      <select
+                        value={productSubSubCategory}
+                        onChange={(e) =>
+                          setProductSubSubCategory(e.target.value)
+                        }
+                      >
                         <option value="">Select SubSubCategory</option>
                         {getSubSubCategoryDetails.map((sub) => (
-                          <option key={sub.subsub_id} value={sub.subsub_id}>{sub.subsub_name}</option>
+                          <option key={sub.subsub_id} value={sub.subsub_id}>
+                            {sub.subsub_name}
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div className={sellerCss.productField}>
                       <label>SubSubSubCategory</label>
-                      <select value={productSubSubSubCategory} onChange={(e) => setProductSubSubSubCategory(e.target.value)}>
+                      <select
+                        value={productSubSubSubCategory}
+                        onChange={(e) =>
+                          setProductSubSubSubCategory(e.target.value)
+                        }
+                      >
                         <option value="">Select SubSubSubCategory</option>
                         {getSubSubSubCategoryDetails.map((sub) => (
-                          <option key={sub.id} value={sub.id}>{sub.name}</option>
+                          <option key={sub.id} value={sub.id}>
+                            {sub.name}
+                          </option>
                         ))}
                       </select>
                     </div>
                     <div className={sellerCss.productField}>
                       <label>Image</label>
-                      <input type="file" onChange={(e) => setProductImage(e.target.files[0])} />
+                      <input
+                        type="file"
+                        onChange={(e) => setProductImage(e.target.files[0])}
+                      />
                     </div>
                     <div className={sellerCss.productField}>
                       <label>Description</label>
-                      <input value={productDescription} onChange={(e) => setProductDescription(e.target.value)} />
+                      <input
+                        value={productDescription}
+                        onChange={(e) => setProductDescription(e.target.value)}
+                      />
                     </div>
                     <div className={sellerCss.productField}>
-                      <button type="submit">{isEditing ? "Update" : "Submit"}</button>
+                      <button type="submit">
+                        {isEditing ? "Update" : "Submit"}
+                      </button>
                     </div>
                   </form>
                 </div>
               </div>
             </div>
           )}
-<div className={sellerCss.glassCardSummary}>
-  <h2>Dashboard Summary</h2>
-  <div className={sellerCss.statsGrid}>
-    <div className={sellerCss.statBox}>
-      <h3>Total Orders</h3>
-      <p>{totalOrders}</p>
-    </div>
-    <div className={sellerCss.statBox}>
-      <h3>Total Quantity</h3>
-      <p>{totalQuantity}</p>
-    </div>
-    <div className={sellerCss.statBox}>
-      <h3>Welcome Back!</h3>
-      <p>Check your latest inventory updates below.</p>
-    </div>
-  </div>
-</div>
+          <div className={sellerCss.glassCardSummary}>
+            <h2>Dashboard Summary</h2>
+            <div className={sellerCss.statsGrid}>
+              <div className={sellerCss.statBox}>
+                <h3>Total Orders</h3>
+                <p>{totalOrders}</p>
+              </div>
+              <div className={sellerCss.statBox}>
+                <h3>Total Quantity</h3>
+                <p>{totalQuantity}</p>
+              </div>
+              <div className={sellerCss.statBox}>
+                <h3>Welcome Back!</h3>
+                <p>Check your latest inventory updates below.</p>
+              </div>
+            </div>
+          </div>
 
           <div className={sellerCss.sellerGlassCard}>
-            <div className={sellerCss.product}>
-              <div className={sellerCss.productDetails}>SlNo</div>
-              <div className={sellerCss.productDetails}>Name</div>
-              <div className={sellerCss.productDetails}>Price</div>
-              <div className={sellerCss.productDetails}>Quantity</div>
-              <div className={sellerCss.productDetails}>Image</div>
-              <div className={sellerCss.productDetails}>Description</div>
-              <div className={sellerCss.productDetails}>Actions</div>
-            </div>
-
-            {productDetails.map((product, index) => (
-              <div className={sellerCss.product} key={index}>
-                <p className={sellerCss.productDetails}>{index + 1}</p>
-                <p className={sellerCss.productDetails}>{product.name}</p>
-                <p className={sellerCss.productDetails}>{product.price}</p>
-                <p className={sellerCss.productDetails}>{product.quantity}</p>
-                <p className={sellerCss.productDetails}>
-                  <img src={product.image_url} alt="product" height="50" />
-                </p>
-                <p className={sellerCss.productDetailsDescription}>{product.description}</p>
-                <p className={sellerCss.productDetails}>
-                  <button className={sellerCss.actionButton} onClick={() => { setIsModalOpen(true); setIsEditing(true); setCurrentEditId(product.id); }}>
-                    <img src={editImg} alt="edit" />
-                  </button>
-                  <button className={sellerCss.actionButton} onClick={() => productDelete(product.id)}>
-                    <img src={deleteImg} alt="delete" />
-                  </button>
-                </p>
+            <div className={sellerCss.scrollWrapper}>
+              <div className={sellerCss.product}>
+                <div className={sellerCss.productDetails}>SlNo</div>
+                <div className={sellerCss.productDetails}>Name</div>
+                <div className={sellerCss.productDetails}>Price</div>
+                <div className={sellerCss.productDetails}>Quantity</div>
+                <div className={sellerCss.productDetails}>Image</div>
+                <div className={sellerCss.productDetails}>Description</div>
+                <div className={sellerCss.productDetails}>Actions</div>
               </div>
-            ))}
+
+              {productDetails.map((product, index) => (
+                <div className={sellerCss.product} key={index}>
+                  <p className={sellerCss.productDetails}>{index + 1}</p>
+                  <p className={sellerCss.productDetails}>{product.name}</p>
+                  <p className={sellerCss.productDetails}>{product.price}</p>
+                  <p className={sellerCss.productDetails}>{product.quantity}</p>
+                  <p className={sellerCss.productDetails}>
+                    <img src={product.image_url} alt="product" height="50" />
+                  </p>
+                  <p className={sellerCss.productDetailsDescription}>
+                    {product.description}
+                  </p>
+                  <p className={sellerCss.productDetails}>
+                    <button
+                      className={sellerCss.actionButton}
+                      onClick={() => {
+                        setIsModalOpen(true);
+                        setIsEditing(true);
+                        setCurrentEditId(product.id);
+                      }}
+                    >
+                      <img src={editImg} alt="edit" />
+                    </button>
+                    <button
+                      className={sellerCss.actionButton}
+                      onClick={() => productDelete(product.id)}
+                    >
+                      <img src={deleteImg} alt="delete" />
+                    </button>
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

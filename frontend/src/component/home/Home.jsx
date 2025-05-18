@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import cartIocn from "../../images/banner/carticon1.png";
 import profile from "../../images/banner/profile.png";
 
-const Home = ({ setViewMoreDetails, totalCartCount }) => {
+const Home = ({ setViewMoreDetails }) => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState([]);
@@ -19,10 +19,11 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
   const [onModalOpen, setOnModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
+  const [totalCartCount, setTotalCartCount] = useState(0);
 
   const navigate = useNavigate();
 
-  const baseUrl = "http://192.168.230.10:5000";
+  const baseUrl = "http://localhost:5000";
 
   useEffect(() => {
     axios.get(`${baseUrl}/api/products/`).then((res) => {
@@ -31,9 +32,26 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
 
     axios.get(`${baseUrl}/api/category`).then((res) => {
       setCategory(res.data);
+      console.log({ totalCartCount });
     });
-  }, [totalCartCount]);
+  }, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
+    if (token) {
+      axios
+        .get("http://localhost:5000/api/cart", {
+          headers: { Authorization: token },
+        })
+        .then((res) => {
+          setTotalCartCount(res.data.length || 0);
+          console.log("Updated totalCartCount in App:", res.data.length);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch cart count in App:", err);
+        });
+    }
+  }, []);
   const handleCategoryClick = async (id) => {
     try {
       const res = await axios.get(
@@ -185,7 +203,6 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
               </button>
             )}
           </div>
-
         </div>
         <div className={homecss.homeHeadderBodyLap}>
           <div className={homecss.homeHeaderLeft}>
@@ -193,10 +210,14 @@ const Home = ({ setViewMoreDetails, totalCartCount }) => {
           </div>
           <div className={homecss.homeHeaderRight}>
             <div className={homecss.cartImg}>
-              <img alt="" onClick={() => navigate("/home/cart")} src={cartIocn} />
+              <img
+                alt=""
+                onClick={() => navigate("/home/cart")}
+                src={cartIocn}
+              />
               <p className={homecss.cartCnt}>{totalCartCount}</p>
             </div>
-            <img alt=""src={profile} width={"50px"} />
+            <img alt="" src={profile} width={"50px"} />
             <button className={homecss.Logout} onClick={logoutButton}>
               Logout
             </button>

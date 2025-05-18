@@ -18,11 +18,11 @@ import OrderConfirmation from "./component/orderConfirmation/OrderConfirmation";
 import OrderHistory from "./component/orderHistory/OrderHistory";
 import AdminSubSubSubCategory from "./component/admin/adminSubSubSubCategory/AdminSubSubSubCategory";
 import axios from "axios";
+import AdminProduct from "./component/admin/adminProduct/AdminProduct";
 
 function App() {
   const navigate = useNavigate();
   const [ViewMoreDetails, setViewMoreDetails] = useState([]);
-  const [totalCartCount, setTotalCartCount] = useState(0);
 
   // Session expiry
   useEffect(() => {
@@ -41,23 +41,6 @@ function App() {
   }, [navigate]);
 
   // Fetch cart count on load
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      axios
-        .get("http://localhost:5000/api/cart", {
-          headers: { Authorization: token },
-        })
-        .then((res) => {
-          setTotalCartCount(res.data.length || 0);
-          console.log("Updated totalCartCount in App:", res.data.length);
-        })
-        .catch((err) => {
-          console.error("Failed to fetch cart count in App:", err);
-        });
-    }
-  }, []);
 
   return (
     <Routes>
@@ -67,12 +50,7 @@ function App() {
         path="/home"
         element={
           <ProtectedRoute
-            element={
-              <Home
-                totalCartCount={totalCartCount}
-                setViewMoreDetails={setViewMoreDetails}
-              />
-            }
+            element={<Home setViewMoreDetails={setViewMoreDetails} />}
             allowedRoles={["customer"]}
           />
         }
@@ -111,11 +89,7 @@ function App() {
         element={<OrderHistory />}
         allowedRoles={["customer", "seller", "admin"]}
       />
-      <Route
-        path="/home/cart"
-        element={<Cart setTotalCartCount={setTotalCartCount} />}
-        allowedRoles={["customer"]}
-      />
+      <Route path="/home/cart" element={<Cart />} allowedRoles={["customer"]} />
       <Route
         path="/seller"
         element={
@@ -171,6 +145,12 @@ function App() {
             element={<AdminSubSubSubCategory />}
             allowedRoles={["admin"]}
           />
+        }
+      />
+      <Route
+        path="/admin/adminProduct"
+        element={
+          <ProtectedRoute element={<AdminProduct />} allowedRoles={["admin"]} />
         }
       />
     </Routes>
